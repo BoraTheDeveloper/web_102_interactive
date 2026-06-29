@@ -1,0 +1,11 @@
+{
+  "name": "tka-interactive-courses",
+  "private": true,
+  "description": "Three interactive course sites hosted as sub-paths on Vercel",
+  "scripts": {
+    "build": "node build-all.js",
+    "dev:web-dev": "cd web-dev && npm run dev",
+    "dev:intro-python": "cd intro-python && npm run dev",
+    "dev:game-dev": "cd game-dev && npm run dev"
+  }
+}

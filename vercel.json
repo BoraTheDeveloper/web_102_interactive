@@ -1,0 +1,9 @@
+{
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "rewrites": [
+    { "source": "/web-dev/(.*)", "destination": "/web-dev/index.html" },
+    { "source": "/intro-python/(.*)", "destination": "/intro-python/index.html" },
+    { "source": "/game-dev/(.*)", "destination": "/game-dev/index.html" }
+  ]
+}

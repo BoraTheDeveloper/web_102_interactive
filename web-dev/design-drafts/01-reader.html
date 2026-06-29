@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Draft 01 · Reader — Web Dev 102 Study View</title>
+
+<!-- Fontshare: Clash Display (headings), Satoshi (body), JetBrains Mono (code) -->
+<link rel="preconnect" href="https://api.fontshare.com" crossorigin />
+<link href="https://api.fontshare.com/v2/css?f[]=clash-display@500,600,700&f[]=satoshi@400,500,700&f[]=jetbrains-mono@400,500&display=swap" rel="stylesheet">
+
+<style>
+/* ============================================================
+   SHARED DESIGN SYSTEM (applied across all drafts)
+   Type   : Clash Display / Satoshi / JetBrains Mono (Fontshare)
+   Scale  : Major Third ~1.25, snapped to 8pt
+   Color  : 60-30-10 · warm neutral + indigo accent · WCAG AA
+   Grid   : 12-col · 8pt spacing (8→96)
+   ============================================================ */
+:root{
+  --paper:#FBFAF7; --surface:#FFFFFF; --surface-2:#F2EFE8;
+  --ink:#1C1F26; --ink-soft:#5B6270; --ink-faint:#8A909C;
+  --line:#E7E4DC; --line-strong:#D8D4CA;
+  --accent:#4F46E5; --accent-ink:#FFFFFF;
+  --accent-soft:rgba(79,70,229,.10); --accent-line:rgba(79,70,229,.24);
+  --pass:#15803D; --pass-soft:#E8F3EC; --fail:#B4341F;
+  --code-bg:#171A24; --code-ink:#E6E8EF;
+  --radius:14px; --radius-sm:10px;
+  --sans:'Satoshi',system-ui,sans-serif; --display:'Clash Display',sans-serif; --mono:'JetBrains Mono',ui-monospace,monospace;
+
+  /* 8pt type scale (Major Third ~1.25, snapped) */
+  --fs-300:.875rem; --fs-400:1rem; --fs-500:1.25rem; --fs-600:1.5rem;
+  --fs-700:2rem; --fs-800:2.5rem; --fs-900:3.25rem;
+  /* 8pt spacing */
+  --s-1:8px; --s-2:16px; --s-3:24px; --s-4:32px; --s-5:48px; --s-6:64px; --s-7:96px;
+  --measure:68ch;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{
+  font-family:var(--sans); color:var(--ink); background:var(--paper);
+  font-size:var(--fs-400); line-height:1.6; letter-spacing:.005em;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4,h5,h6{font-family:var(--display); font-weight:600; line-height:1.15; letter-spacing:-.015em; margin:0}
+p{margin:0}
+a{color:var(--accent); text-decoration:none}
+code,pre{font-family:var(--mono)}
+
+/* ---------- Topbar ---------- */
+.topbar{
+  position:sticky; top:0; z-index:40; height:64px;
+  display:flex; align-items:center; gap:var(--s-3);
+  padding:0 var(--s-4);
+  background:rgba(251,250,247,.85); backdrop-filter:saturate(180%) blur(12px);
+  border-bottom:1px solid var(--line);
+}
+.brand{display:flex; align-items:center; gap:var(--s-2); font-family:var(--display); font-weight:600; font-size:var(--fs-500)}
+.brand-dot{width:12px;height:12px;border-radius:4px;background:var(--accent);box-shadow:0 0 0 4px var(--accent-soft)}
+.brand small{font-family:var(--sans); font-weight:400; color:var(--ink-soft); font-size:var(--fs-300); letter-spacing:0}
+.topbar-spacer{flex:1}
+.course-progress{display:flex; align-items:center; gap:var(--s-2); font-size:var(--fs-300); color:var(--ink-soft)}
+.progress-track{width:120px; height:6px; background:var(--surface-2); border-radius:999px; overflow:hidden}
+.progress-fill{height:100%; width:25%; background:var(--accent); border-radius:999px}
+.btn{font-family:var(--sans); font-weight:500; font-size:var(--fs-400); border-radius:var(--radius-sm); border:1px solid var(--line-strong); background:var(--surface); color:var(--ink); padding:10px 18px; cursor:pointer; transition:.15s}
+.btn:hover{border-color:var(--ink-soft)}
+.btn--primary{background:var(--accent); border-color:var(--accent); color:var(--accent-ink)}
+.btn--primary:hover{background:#3F37C7; border-color:#3F37C7}
+.btn--sm{padding:8px 14px; font-size:var(--fs-300)}
+
+/* ---------- Shell: rail · main · progress rail ---------- */
+.shell{display:grid; grid-template-columns:264px minmax(0,1fr) 232px; max-width:1440px; margin:0 auto}
+
+/* Left rail */
+.rail{position:sticky; top:64px; height:calc(100vh - 64px); overflow:auto; padding:var(--s-4) var(--s-3); border-right:1px solid var(--line)}
+.rail-label{font-size:var(--fs-300); text-transform:uppercase; letter-spacing:.08em; color:var(--ink-faint); font-weight:500; margin:0 var(--s-1) var(--s-2)}
+.week-list{display:flex; flex-direction:column; gap:4px; list-style:none; margin:0; padding:0}
+.week-item{display:flex; align-items:center; gap:var(--s-2); width:100%; text-align:left; border:1px solid transparent; background:none; border-radius:var(--radius-sm); padding:10px 12px; cursor:pointer; font-family:var(--sans); color:var(--ink-soft); transition:.15s}
+.week-item:hover{background:var(--surface-2); color:var(--ink)}
+.week-item--current{background:var(--accent-soft); border-color:var(--accent-line); color:var(--ink)}
+.week-num{font-family:var(--mono); font-size:var(--fs-300); color:var(--ink-faint); width:24px; flex:none}
+.week-item--current .week-num{color:var(--accent)}
+.week-name{font-size:var(--fs-400); flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.week-state{font-size:.75rem; flex:none}
+.state-done{color:var(--pass)}
+.state-soon{color:var(--ink-faint)}
+.state-current{color:var(--accent); font-weight:500}
+
+/* Main */
+.main{padding:var(--s-5) var(--s-5) var(--s-7); min-width:0}
+.week-header{max-width:var(--measure); margin-bottom:var(--s-5)}
+.kicker{display:inline-flex; align-items:center; gap:var(--s-1); font-family:var(--mono); font-size:var(--fs-300); color:var(--accent); background:var(--accent-soft); padding:6px 12px; border-radius:999px; margin-bottom:var(--s-2)}
+.week-title{font-size:var(--fs-800); letter-spacing:-.02em}
+.week-subtitle{color:var(--ink-soft); font-size:var(--fs-500); margin-top:var(--s-1)}
+
+.goal{display:flex; gap:var(--s-3); align-items:flex-start; max-width:var(--measure); background:var(--surface); border:1px solid var(--line); border-left:3px solid var(--accent); border-radius:var(--radius); padding:var(--s-3) var(--s-4); margin-bottom:var(--s-6)}
+.goal-tag{font-family:var(--mono); font-size:var(--fs-300); color:var(--accent); text-transform:uppercase; letter-spacing:.08em; flex:none; padding-top:2px}
+.goal p{color:var(--ink-soft); line-height:1.55}
+
+/* Sections */
+.section{max-width:var(--measure); margin-top:var(--s-6); scroll-margin-top:88px}
+.section-head{display:flex; align-items:baseline; gap:var(--s-2); margin-bottom:var(--s-3); padding-bottom:var(--s-2); border-bottom:1px solid var(--line)}
+.section-num{font-family:var(--mono); font-size:var(--fs-300); color:var(--ink-faint)}
+.section-title{font-size:var(--fs-700); letter-spacing:-.02em}
+.section-lead{color:var(--ink-soft); margin-bottom:var(--s-3)}
+
+.theory-p{margin-top:var(--s-2); color:var(--ink)}
+.theory-p strong{color:var(--ink)}
+.inline-code{font-family:var(--mono); font-size:.875em; background:var(--surface-2); padding:2px 6px; border-radius:6px; color:var(--ink)}
+
+.code-block{background:var(--code-bg); border-radius:var(--radius); padding:var(--s-3) var(--s-4); overflow:auto; margin:var(--s-2) 0; font-size:.875rem; line-height:1.6}
+.code-block code{color:var(--code-ink)}
+.tk-key{color:#c08cf0}.tk-fn{color:#79c0ff}.tk-str{color:#9ae6a0}.tk-num{color:#f0a35e}.tk-com{color:#6b7390}.tk-op{color:#f0a35e}
+
+.example{margin-top:var(--s-4); background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden}
+.example-head{padding:var(--s-3) var(--s-4); border-bottom:1px solid var(--line); display:flex; align-items:center; gap:var(--s-2)}
+.example-badge{font-family:var(--mono); font-size:.75rem; color:var(--accent); background:var(--accent-soft); padding:4px 10px; border-radius:999px; flex:none}
+.example-title{font-family:var(--display); font-weight:600; font-size:var(--fs-500)}
+.example-caption{padding:var(--s-2) var(--s-4) 0; color:var(--ink-soft); font-size:var(--fs-300)}
+.example-body{padding:var(--s-2) var(--s-4) var(--s-4)}
+
+/* Practice */
+.exercise{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:var(--s-4); margin-top:var(--s-3)}
+.exercise--pass{border-color:#BFE6CF; background:var(--pass-soft)}
+.ex-head{display:flex; align-items:center; gap:var(--s-2); margin-bottom:var(--s-2)}
+.ex-badge{font-family:var(--mono); font-size:.75rem; padding:4px 10px; border-radius:999px; flex:none}
+.badge-predict{color:var(--ink-soft); background:var(--surface-2)}
+.badge-code{color:var(--accent); background:var(--accent-soft)}
+.badge-quiz{color:#9A3412; background:#FFF1E6}
+.ex-title{font-family:var(--display); font-weight:600; font-size:var(--fs-500)}
+.ex-prompt{color:var(--ink-soft); margin-bottom:var(--s-3)}
+.ex-prompt code{font-family:var(--mono); background:var(--surface-2); padding:2px 6px; border-radius:6px; color:var(--ink); font-size:.85em}
+.editor{background:var(--code-bg); border-radius:var(--radius-sm); padding:var(--s-3); font-size:.875rem; line-height:1.7; color:var(--code-ink); min-height:96px}
+.ex-actions{display:flex; gap:var(--s-2); margin-top:var(--s-3)}
+.feedback{margin-top:var(--s-2); font-size:var(--fs-300); display:flex; align-items:center; gap:var(--s-1); color:var(--pass)}
+
+/* Feynman */
+.feynman{border:1px solid var(--line); border-radius:var(--radius); background:var(--surface); margin-top:var(--s-2); overflow:hidden}
+.feynman-q{display:flex; align-items:center; justify-content:space-between; gap:var(--s-2); padding:var(--s-3) var(--s-4); cursor:pointer}
+.feynman-q:not(:last-child){border-bottom:1px solid var(--line)}
+.feynman-q h4{font-family:var(--sans); font-weight:500; font-size:var(--fs-400)}
+.feynman-reveal{font-size:var(--fs-300); color:var(--accent); flex:none}
+.feynman-a{display:none; padding:0 var(--s-4) var(--s-3); color:var(--ink-soft)}
+.feynman-item.open .feynman-a{display:block}
+.feynman-item.open .feynman-reveal::before{content:'Hide '}
+.feynman-a{border-top:1px dashed var(--line); padding-top:var(--s-2)}
+
+/* Check-in */
+.checkin{list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:var(--s-2)}
+.checkin li{display:flex; align-items:center; gap:var(--s-2); background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-sm); padding:var(--s-2) var(--s-3)}
+.check-ico{width:20px;height:20px;border-radius:6px;border:2px solid var(--line-strong);flex:none}
+.checkin li.done .check-ico{background:var(--pass); border-color:var(--pass); display:flex; align-items:center; justify-content:center; color:#fff; font-size:.75rem}
+.checkin li.done{opacity:.7; text-decoration:line-through; color:var(--ink-soft)}
+
+/* Right progress rail */
+.prog-rail{position:sticky; top:64px; height:calc(100vh - 64px); padding:var(--s-4) var(--s-3); border-left:1px solid var(--line); display:flex; flex-direction:column; gap:var(--s-3)}
+.prog-card{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:var(--s-3)}
+.ring{position:relative; width:88px; height:88px; margin:0 auto var(--s-2)}
+.ring svg{transform:rotate(-90deg)}
+.ring-bg{stroke:var(--surface-2)}
+.ring-fg{stroke:var(--accent); stroke-linecap:round; transition:stroke-dashoffset .3s}
+.ring-val{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-family:var(--display); font-weight:600; font-size:var(--fs-600)}
+.prog-label{text-align:center; font-size:var(--fs-300); color:var(--ink-soft)}
+.prog-nav{display:flex; flex-direction:column; gap:2px}
+.prog-link{display:flex; align-items:center; gap:var(--s-2); padding:8px 10px; border-radius:var(--radius-sm); color:var(--ink-soft); font-size:var(--fs-300); cursor:pointer}
+.prog-link:hover{background:var(--surface-2); color:var(--ink)}
+.prog-link.active{color:var(--accent); background:var(--accent-soft); font-weight:500}
+.prog-dot{width:8px;height:8px;border-radius:50%;background:var(--line-strong);flex:none}
+.prog-link.active .prog-dot{background:var(--accent)}
+.prog-cta{margin-top:auto}
+
+/* Responsive */
+@media (max-width:1180px){ .shell{grid-template-columns:264px minmax(0,1fr)} .prog-rail{display:none} }
+@media (max-width:860px){
+  .shell{grid-template-columns:1fr}
+  .rail{position:static; height:auto; border-right:none; border-bottom:1px solid var(--line)}
+  .week-name{display:none}
+  .main{padding:var(--s-4)}
+  .week-title{font-size:var(--fs-700)}
+}
+</style>
+</head>
+<body>
+
+<!-- ============ ABOUT THIS DRAFT (for review) ============
+     DIRECTION 01 — "READER"
+     Goal: students study easily via a calm, reading-first column.
+     Fixes vs current design:
+       • Real type system (Clash Display/Satoshi, Major Third scale)
+       • Strict 8pt spacing (was 44/26/6px)
+       • Adds a STUDY-PROGRESS rail (right): scroll-fill ring + section
+         scrollspy + "Mark week complete" — the missing study signal.
+       • Single page goal: finish the week's loop. CTA repeats top + rail.
+     Interaction is mocked (no runner); this is a visual/UX draft.
+     =========================================================== -->
+
+<header class="topbar">
+  <div class="brand"><span class="brand-dot"></span> Web Dev 102 <small>· Interactive Review</small></div>
+  <div class="topbar-spacer"></div>
+  <div class="course-progress">1 / 12 weeks <span class="progress-track"><span class="progress-fill"></span></span></div>
+  <button class="btn btn--sm">Exit</button>
+</header>
+
+<div class="shell">
+
+  <!-- LEFT RAIL -->
+  <aside class="rail">
+    <p class="rail-label">Course</p>
+    <ul class="week-list">
+      <li><button class="week-item"><span class="week-num">01</span><span class="week-name">Web 101 Review &amp; React</span><span class="week-state state-soon">soon</span></button></li>
+      <li><button class="week-item"><span class="week-num">02</span><span class="week-name">Components, Props &amp; UI</span><span class="week-state state-soon">soon</span></button></li>
+      <li><button class="week-item week-item--current"><span class="week-num">03</span><span class="week-name">State &amp; Interaction</span><span class="week-state state-current">here</span></button></li>
+      <li><button class="week-item"><span class="week-num">04</span><span class="week-name">Forms &amp; Controlled Inputs</span><span class="week-state state-soon">soon</span></button></li>
+      <li><button class="week-item"><span class="week-num">05</span><span class="week-name">Fetching Data from APIs</span><span class="week-state state-soon">soon</span></button></li>
+      <li><button class="week-item"><span class="week-num">06</span><span class="week-name">Node.js &amp; Express</span><span class="week-state state-soon">soon</span></button></li>
+      <li><button class="week-item"><span class="week-num">07</span><span class="week-name">API Design &amp; Debugging</span><span class="week-state state-soon">soon</span></button></li>
+      <li><button class="week-item"><span class="week-num">08</span><span class="week-name">MongoDB &amp; Mongoose</span><span class="week-state state-soon">soon</span></button></li>
+      <li><button class="week-item"><span class="week-num">09</span><span class="week-name">Full CRUD</span><span class="week-state state-soon">soon</span></button></li>
+      <li><button class="week-item"><span class="week-num">10</span><span class="week-name">React ↔ Express</span><span class="week-state state-soon">soon</span></button></li>
+      <li><button class="week-item"><span class="week-num">11</span><span class="week-name">Final Project Prep</span><span class="week-state state-soon">soon</span></button></li>
+      <li><button class="week-item"><span class="week-num">12</span><span class="week-name">Final Presentation</span><span class="week-state state-soon">soon</span></button></li>
+    </ul>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <header class="week-header">
+      <span class="kicker">● Week 03 · In progress</span>
+      <h1 class="week-title">State &amp; User Interaction</h1>
+      <p class="week-subtitle">Events, State, and Array Updates</p>
+    </header>
+
+    <div class="goal">
+      <span class="goal-tag">Goal</span>
+      <p>Understand the JavaScript behind React state and user interaction — events, event handlers, <code class="inline-code">useState</code>, and the immutable array updates (spread and <code class="inline-code">.map()</code>) that React relies on.</p>
+    </div>
+
+    <!-- THEORY -->
+    <section class="section" id="theory">
+      <div class="section-head"><span class="section-num">01</span><h2 class="section-title">Theory</h2></div>
+      <p class="theory-p">An <strong>event</strong> is something the user does — for example clicking a button, typing in an input, or submitting a form.</p>
+      <p class="theory-p">In React, an <strong>event handler</strong> is a function that runs after an event happens.</p>
+      <pre class="code-block"><code><span class="tk-key">function</span> <span class="tk-fn">handleClick</span>() {
+  <span class="tk-fn">console</span>.<span class="tk-fn">log</span>(<span class="tk-str">"Button clicked"</span>);
+}</code></pre>
+      <p class="theory-p"><strong>State</strong> stores data that can change on the screen. In React we create it with <code class="inline-code">useState</code>.</p>
+      <pre class="code-block"><code><span class="tk-key">const</span> [count, setCount] = <span class="tk-fn">useState</span>(<span class="tk-num">0</span>);</code></pre>
+      <p class="theory-p">When state changes, React automatically updates the UI to match.</p>
+      <p class="theory-p">For arrays, React expects you to create a <strong>new</strong> array instead of changing the old one directly. The spread syntax <code class="inline-code">...tasks</code> copies the old values into a new array.</p>
+      <pre class="code-block"><code><span class="tk-key">const</span> tasks = [<span class="tk-str">"Study JS"</span>, <span class="tk-str">"Practice React"</span>];
+<span class="tk-key">const</span> newTasks = [...tasks, <span class="tk-str">"Build planner"</span>];</code></pre>
+      <p class="theory-p"><code class="inline-code">.map()</code> runs a function on every item and returns a <strong>new array</strong> with the results. In React, <code class="inline-code">.map()</code> is how you turn a list of data into a list of elements.</p>
+    </section>
+
+    <!-- EXAMPLES -->
+    <section class="section" id="examples">
+      <div class="section-head"><span class="section-num">02</span><h2 class="section-title">Examples</h2></div>
+      <p class="section-lead">Read, then run. Traced demos step through what happens inside React.</p>
+
+      <div class="example">
+        <div class="example-head"><span class="example-badge">RUNNABLE</span><h3 class="example-title">Plain JavaScript: a counter</h3></div>
+        <p class="example-caption">Run this. Each call to <code class="inline-code">increaseCount</code> adds 1 and logs the new value.</p>
+        <div class="example-body">
+          <pre class="code-block"><code><span class="tk-key">let</span> count = <span class="tk-num">0</span>;
+
+<span class="tk-key">function</span> <span class="tk-fn">increaseCount</span>() {
+  count = count + <span class="tk-num">1</span>;
+  <span class="tk-fn">console</span>.<span class="tk-fn">log</span>(count);
+}
+
+<span class="tk-fn">increaseCount</span>();
+<span class="tk-fn">increaseCount</span>();</code></pre>
+          <div class="ex-actions"><button class="btn btn--primary btn--sm">▶ Run</button><button class="btn btn--sm">Reset</button></div>
+        </div>
+      </div>
+
+      <div class="example">
+        <div class="example-head"><span class="example-badge">TRACED</span><h3 class="example-title">A click, step by step</h3></div>
+        <p class="example-caption">Click the button — or press Step ▶ — to watch what happens inside React: the event fires, the handler runs, setState queues the new value, and only then does the screen re-render.</p>
+        <div class="example-body">
+          <div class="editor"><span class="tk-com">// debugger view — code left, live state + steps right</span>
+event → handler → setState → re-render</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PRACTICE -->
+    <section class="section" id="practice">
+      <div class="section-head"><span class="section-num">03</span><h2 class="section-title">Practice</h2></div>
+      <p class="section-lead">Try these yourself. Code exercises run in your browser and check your answer.</p>
+
+      <div class="exercise exercise--pass">
+        <div class="ex-head"><span class="ex-badge badge-predict">PREDICT</span><h3 class="ex-title">Predict the output</h3></div>
+        <p class="ex-prompt">Before running it, write down what you think this prints. Then run and compare.</p>
+        <div class="feedback">✓ Nailed it — nice.</div>
+      </div>
+
+      <div class="exercise">
+        <div class="ex-head"><span class="ex-badge badge-code">CODE</span><h3 class="ex-title">Exercise 1 — Counting</h3></div>
+        <p class="ex-prompt">Finish <code>increaseCount</code> so it adds 1 to <code>count</code>. Called three times, final value should be <strong>3</strong>.</p>
+        <div class="editor"><span class="tk-key">let</span> count = <span class="tk-num">0</span>;
+
+<span class="tk-key">function</span> <span class="tk-fn">increaseCount</span>() {
+  <span class="tk-com">// your code here</span>
+}</div>
+        <div class="ex-actions"><button class="btn btn--primary btn--sm">Run &amp; check</button><button class="btn btn--sm">Hint</button><button class="btn btn--sm">Solution</button></div>
+      </div>
+
+      <div class="exercise">
+        <div class="ex-head"><span class="ex-badge badge-code">CODE</span><h3 class="ex-title">Exercise 2 — Add with spread syntax</h3></div>
+        <p class="ex-prompt">Change the marked line so <code>newTasks</code> equals <code>["Study JS", "Practice React", "Build planner"]</code>, using spread.</p>
+        <div class="editor"><span class="tk-key">const</span> tasks = [<span class="tk-str">"Study JS"</span>, <span class="tk-str">"Practice React"</span>];
+<span class="tk-com">// make newTasks add "Build planner" using ...tasks</span>
+<span class="tk-key">const</span> newTasks = tasks; <span class="tk-com">// &lt;-- change this line</span></div>
+        <div class="ex-actions"><button class="btn btn--primary btn--sm">Run &amp; check</button><button class="btn btn--sm">Hint</button></div>
+      </div>
+
+      <div class="exercise">
+        <div class="ex-head"><span class="ex-badge badge-quiz">QUIZ</span><h3 class="ex-title">Read the React code</h3></div>
+        <p class="ex-prompt">Read this component carefully, then answer.</p>
+        <pre class="code-block"><code><span class="tk-key">function</span> <span class="tk-fn">TaskList</span>() {
+  <span class="tk-key">const</span> [tasks, setTasks] = <span class="tk-fn">useState</span>([<span class="tk-str">"Study JS"</span>]);
+  <span class="tk-key">function</span> <span class="tk-fn">addTask</span>() { <span class="tk-fn">setTasks</span>([...tasks, <span class="tk-str">"Practice React"</span>]); }
+  <span class="tk-key">return</span> &lt;button onClick={addTask}&gt;Add&lt;/button&gt;;
+}</code></pre>
+        <div class="ex-actions"><button class="btn btn--primary btn--sm">Start quiz (3 Q)</button></div>
+      </div>
+    </section>
+
+    <!-- FEYNMAN -->
+    <section class="section" id="feynman">
+      <div class="section-head"><span class="section-num">04</span><h2 class="section-title">Feynman Check</h2></div>
+      <p class="section-lead">Explain each in your own words, then reveal a model answer.</p>
+      <div class="feynman-item feynnman open" style="border:1px solid var(--line); border-radius:var(--radius); background:var(--surface); margin-top:var(--s-2); overflow:hidden">
+        <div class="feynman-q"><h4>What is an event?</h4><span class="feynman-reveal">Reveal</span></div>
+        <div class="feynman-a">Something the user does in the page — a click, a keystroke, a form submit. React lets you run a function in response to it.</div>
+      </div>
+      <div class="feynman-item" style="border:1px solid var(--line); border-radius:var(--radius); background:var(--surface); margin-top:var(--s-2); overflow:hidden">
+        <div class="feynman-q"><h4>Why does React use state?</h4><span class="feynman-reveal">Reveal</span></div>
+      </div>
+      <div class="feynman-item" style="border:1px solid var(--line); border-radius:var(--radius); background:var(--surface); margin-top:var(--s-2); overflow:hidden">
+        <div class="feynman-q"><h4>Why create a new array instead of changing the old one?</h4><span class="feynman-reveal">Reveal</span></div>
+      </div>
+    </section>
+
+    <!-- CHECK-IN -->
+    <section class="section" id="checkin">
+      <div class="section-head"><span class="section-num">05</span><h2 class="section-title">Before-Class Check-In</h2></div>
+      <p class="section-lead">Be ready to show these in class.</p>
+      <ul class="checkin">
+        <li class="done"><span class="check-ico">✓</span> One event handler function you wrote.</li>
+        <li><span class="check-ico"></span> One array update using spread syntax.</li>
+        <li><span class="check-ico"></span> One sentence explaining what <code class="inline-code">useState</code> does.</li>
+      </ul>
+    </section>
+  </main>
+
+  <!-- RIGHT PROGRESS RAIL -->
+  <aside class="prog-rail">
+    <div class="prog-card">
+      <div class="ring">
+        <svg width="88" height="88" viewBox="0 0 88 88">
+          <circle class="ring-bg" cx="44" cy="44" r="38" fill="none" stroke-width="8"/>
+          <circle class="ring-fg" id="ringFg" cx="44" cy="44" r="38" fill="none" stroke-width="8"
+                  stroke-dasharray="238.7" stroke-dashoffset="119"/>
+        </svg>
+        <div class="ring-val" id="ringVal">50%</div>
+      </div>
+      <div class="prog-label">Week progress</div>
+    </div>
+
+    <nav class="prog-nav">
+      <a class="prog-link active" href="#theory"><span class="prog-dot"></span> Theory</a>
+      <a class="prog-link" href="#examples"><span class="prog-dot"></span> Examples</a>
+      <a class="prog-link" href="#practice"><span class="prog-dot"></span> Practice</a>
+      <a class="prog-link" href="#feynman"><span class="prog-dot"></span> Feynman Check</a>
+      <a class="prog-link" href="#checkin"><span class="prog-dot"></span> Check-In</a>
+    </nav>
+
+    <div class="prog-cta">
+      <button class="btn btn--primary" style="width:100%">Mark week complete →</button>
+    </div>
+  </aside>
+</div>
+
+<script>
+// Minimal scroll-based progress + scrollspy to sell the "study easily" signal.
+const sections=[...document.querySelectorAll('.section')];
+const links=[...document.querySelectorAll('.prog-link')];
+const ringFg=document.getElementById('ringFg');
+const ringVal=document.getElementById('ringVal');
+const C=2*Math.PI*38;
+function update(){
+  const top=window.scrollY+140;
+  let active=sections[0];
+  let furthest=0;
+  sections.forEach((s,i)=>{ if(s.offsetTop<=top){ active=s; furthest=i; } });
+  links.forEach((l,i)=>l.classList.toggle('active', sections[i]===active));
+  const pct=Math.round(((furthest+1)/sections.length)*100);
+  ringFg.setAttribute('stroke-dashoffset', C*(1-pct/100));
+  ringVal.textContent=pct+'%';
+}
+window.addEventListener('scroll',update,{passive:true}); update();
+links.forEach(l=>l.addEventListener('click',e=>{e.preventDefault();const t=document.querySelector(l.getAttribute('href'));t&&t.scrollIntoView({behavior:'smooth'});}));
+document.querySelectorAll('.feynman-q').forEach(q=>q.addEventListener('click',()=>q.parentElement.classList.toggle('open')));
+</script>
+</body>
+</html>

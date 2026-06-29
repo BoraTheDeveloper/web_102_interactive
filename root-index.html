@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://api.fontshare.com" crossorigin />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://api.fontshare.com/v2/css?f[]=clash-display@500,600,700&f[]=satoshi@400,500,700&display=swap"
+      rel="stylesheet"
+    />
+    <title>TKA · Interactive Courses</title>
+    <style>
+      :root {
+        --paper: #fbfaf7;
+        --ink: #1c1f26;
+        --ink-soft: #5b6270;
+        --accent: #4f46e5;
+        --line: #e7e4dc;
+        --radius: 14px;
+        --sans: "Satoshi", system-ui, -apple-system, sans-serif;
+        --display: "Clash Display", "Satoshi", system-ui, sans-serif;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: var(--sans);
+        background: var(--paper);
+        color: var(--ink);
+      }
+      .wrap { max-width: 720px; padding: 48px 24px; width: 100%; }
+      h1 {
+        font-family: var(--display);
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 0 0 8px;
+        letter-spacing: -0.02em;
+      }
+      p.sub { color: var(--ink-soft); font-size: 1.1rem; margin: 0 0 40px; }
+      .cards { display: grid; gap: 16px; }
+      a.card {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        text-decoration: none;
+        color: var(--ink);
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        padding: 24px 28px;
+        transition: border-color 0.15s, transform 0.1s;
+      }
+      a.card:hover { border-color: var(--accent); transform: translateY(-1px); }
+      a.card:active { transform: translateY(0); }
+      .card-title { font-family: var(--display); font-size: 1.35rem; font-weight: 600; }
+      .card-desc { color: var(--ink-soft); font-size: 0.9rem; margin-top: 4px; }
+      .arrow { color: var(--accent); font-size: 1.4rem; font-weight: 700; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <h1>Interactive Courses</h1>
+      <p class="sub">Pick your course to get started.</p>
+      <div class="cards">
+        <a class="card" href="/web-dev/">
+          <div>
+            <div class="card-title">Web Dev 102</div>
+            <div class="card-desc">Interactive weekly lessons and practice</div>
+          </div>
+          <span class="arrow">&rarr;</span>
+        </a>
+        <a class="card" href="/intro-python/">
+          <div>
+            <div class="card-title">Intro Python</div>
+            <div class="card-desc">Concept review, debugging practice, project readiness</div>
+          </div>
+          <span class="arrow">&rarr;</span>
+        </a>
+        <a class="card" href="/game-dev/">
+          <div>
+            <div class="card-title">Game Dev</div>
+            <div class="card-desc">Visual debugging, Space Shooter repair, project planning</div>
+          </div>
+          <span class="arrow">&rarr;</span>
+        </a>
+      </div>
+    </div>
+  </body>
+</html>

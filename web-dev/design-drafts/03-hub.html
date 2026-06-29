@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Draft 03 · Hub — Web Dev 102 Course Dashboard</title>
+<link rel="preconnect" href="https://api.fontshare.com" crossorigin />
+<link href="https://api.fontshare.com/v2/css?f[]=clash-display@500,600,700&f[]=satoshi@400,500,700&f[]=jetbrains-mono@400,500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FBFAF7; --surface:#FFFFFF; --surface-2:#F2EFE8;
+  --ink:#1C1F26; --ink-soft:#5B6270; --ink-faint:#8A909C;
+  --line:#E7E4DC; --line-strong:#D8D4CA;
+  --accent:#4F46E5; --accent-ink:#FFFFFF;
+  --accent-soft:rgba(79,70,229,.10); --accent-line:rgba(79,70,229,.24);
+  --pass:#15803D; --pass-soft:#E8F3EC; --fail:#B4341F;
+  --code-bg:#171A24; --code-ink:#E6E8EF;
+  --radius:14px; --radius-sm:10px;
+  --sans:'Satoshi',system-ui,sans-serif; --display:'Clash Display',sans-serif; --mono:'JetBrains Mono',ui-monospace,monospace;
+  --fs-300:.875rem; --fs-400:1rem; --fs-500:1.25rem; --fs-600:1.5rem; --fs-700:2rem; --fs-800:2.5rem; --fs-900:3.25rem; --fs-1000:4rem;
+  --s-1:8px; --s-2:16px; --s-3:24px; --s-4:32px; --s-5:48px; --s-6:64px; --s-7:96px;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{font-family:var(--sans); color:var(--ink); background:var(--paper); font-size:var(--fs-400); line-height:1.6; -webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{font-family:var(--display); font-weight:600; line-height:1.12; letter-spacing:-.02em; margin:0}
+p{margin:0}
+a{color:var(--accent); text-decoration:none}
+code{font-family:var(--mono)}
+.container{max-width:1180px; margin:0 auto; padding:0 var(--s-4)}
+
+/* ---------- Nav ---------- */
+.nav{display:flex; align-items:center; gap:var(--s-3); height:72px}
+.brand{display:flex; align-items:center; gap:var(--s-2); font-family:var(--display); font-weight:600; font-size:var(--fs-500)}
+.brand-dot{width:12px;height:12px;border-radius:4px;background:var(--accent);box-shadow:0 0 0 4px var(--accent-soft)}
+.brand small{font-family:var(--sans); font-weight:400; color:var(--ink-soft); font-size:var(--fs-300)}
+.spacer{flex:1}
+.nav-links{display:flex; gap:var(--s-2)}
+.nav-link{font-size:var(--fs-400); color:var(--ink-soft); padding:8px 12px; border-radius:var(--radius-sm); cursor:pointer}
+.nav-link:hover{color:var(--ink); background:var(--surface-2)}
+.btn{font-family:var(--sans); font-weight:500; font-size:var(--fs-400); border-radius:var(--radius-sm); border:1px solid var(--line-strong); background:var(--surface); color:var(--ink); padding:10px 18px; cursor:pointer; transition:.15s}
+.btn:hover{border-color:var(--ink-soft)}
+.btn--primary{background:var(--accent); border-color:var(--accent); color:var(--accent-ink)}
+.btn--primary:hover{background:#3F37C7}
+.btn--lg{padding:14px 24px; font-size:var(--fs-500); font-weight:600; font-family:var(--display); letter-spacing:-.01em}
+
+/* ---------- Hero ---------- */
+.hero{padding:var(--s-6) 0 var(--s-5); display:grid; grid-template-columns:1.4fr 1fr; gap:var(--s-5); align-items:center}
+.kicker{display:inline-flex; align-items:center; gap:var(--s-1); font-family:var(--mono); font-size:var(--fs-300); color:var(--accent); background:var(--accent-soft); padding:6px 12px; border-radius:999px; margin-bottom:var(--s-2)}
+.hero h1{font-size:var(--fs-1000); letter-spacing:-.03em; line-height:1.02}
+.hero .lede{color:var(--ink-soft); font-size:var(--fs-500); margin-top:var(--s-3); max-width:46ch}
+.hero-cta{display:flex; gap:var(--s-2); margin-top:var(--s-4)}
+.trust{display:flex; gap:var(--s-4); margin-top:var(--s-5); color:var(--ink-soft); font-size:var(--fs-300)}
+.trust b{color:var(--ink); font-family:var(--display); font-size:var(--fs-500)}
+
+/* Hero stat card */
+.statcard{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:var(--s-4); box-shadow:0 1px 0 var(--line)}
+.statcard-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--s-3)}
+.statcard-title{font-family:var(--display); font-weight:600; font-size:var(--fs-500)}
+.statcard-sub{font-size:var(--fs-300); color:var(--ink-soft)}
+.ring-wrap{display:flex; align-items:center; gap:var(--s-3)}
+.ring{position:relative; width:104px; height:104px; flex:none}
+.ring svg{transform:rotate(-90deg)}
+.ring-bg{stroke:var(--surface-2)} .ring-fg{stroke:var(--accent); stroke-linecap:round}
+.ring-val{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center}
+.ring-val b{font-family:var(--display); font-weight:600; font-size:var(--fs-700); line-height:1}
+.ring-val small{font-size:var(--fs-300); color:var(--ink-soft)}
+.stat-list{flex:1; display:flex; flex-direction:column; gap:var(--s-2)}
+.stat-row{display:flex; justify-content:space-between; font-size:var(--fs-300); color:var(--ink-soft); padding:var(--s-1) 0; border-bottom:1px solid var(--line)}
+.stat-row:last-child{border:none}
+.stat-row b{color:var(--ink)}
+
+/* ---------- Section heading ---------- */
+.sect-head{display:flex; align-items:baseline; justify-content:space-between; margin:var(--s-6) 0 var(--s-3)}
+.sect-head h2{font-size:var(--fs-700); letter-spacing:-.02em}
+.sect-head a{font-size:var(--fs-300)}
+
+/* ---------- Week grid ---------- */
+.weekgrid{display:grid; grid-template-columns:repeat(3,1fr); gap:var(--s-3)}
+.wcard{position:relative; background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:var(--s-3); cursor:pointer; transition:.15s; overflow:hidden}
+.wcard:hover{border-color:var(--line-strong); transform:translateY(-2px); box-shadow:0 8px 24px rgba(28,31,38,.06)}
+.wcard--current{border-color:var(--accent); background:linear-gradient(180deg,var(--accent-soft),var(--surface) 60%)}
+.wcard--locked{opacity:.62}
+.wcard-top{display:flex; align-items:center; justify-content:space-between; margin-bottom:var(--s-2)}
+.wnum{font-family:var(--mono); font-size:var(--fs-300); color:var(--ink-faint)}
+.wcard--current .wnum{color:var(--accent)}
+.wstate{font-size:.75rem; padding:3px 9px; border-radius:999px; font-weight:500}
+.state-done{color:var(--pass); background:var(--pass-soft)}
+.state-current{color:var(--accent); background:var(--accent-soft)}
+.state-soon{color:var(--ink-faint); background:var(--surface-2)}
+.wtitle{font-family:var(--display); font-weight:600; font-size:var(--fs-500); line-height:1.2; margin-bottom:var(--s-1)}
+.wcard--locked .wtitle{color:var(--ink-soft)}
+.wmeta{font-size:var(--fs-300); color:var(--ink-soft); display:flex; align-items:center; gap:var(--s-2)}
+.wbar{margin-top:var(--s-2); height:4px; background:var(--surface-2); border-radius:999px; overflow:hidden}
+.wbar-fill{height:100%; background:var(--accent); border-radius:999px}
+.wbar-fill.done{background:var(--pass)}
+
+/* ---------- Continue card (peek) ---------- */
+.peek{display:grid; grid-template-columns:1.1fr 1fr; gap:var(--s-4); background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:var(--s-4); margin-top:var(--s-3)}
+.peek-left .peek-kicker{font-family:var(--mono); font-size:var(--fs-300); color:var(--accent); margin-bottom:var(--s-1)}
+.peek-left h3{font-size:var(--fs-700); margin-bottom:var(--s-2)}
+.peek-left p{color:var(--ink-soft); max-width:42ch}
+.peek-steps{display:flex; flex-direction:column; gap:var(--s-1); margin-top:var(--s-3)}
+.peek-step{display:flex; align-items:center; gap:var(--s-2); font-size:var(--fs-300); color:var(--ink-soft)}
+.peek-dot{width:16px;height:16px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-size:.6rem}
+.peek-dot.done{background:var(--pass); color:#fff}
+.peek-dot.now{background:var(--accent); color:#fff}
+.peek-dot.todo{background:var(--surface-2); color:var(--ink-faint); border:1px solid var(--line)}
+.peek-right{background:var(--code-bg); border-radius:var(--radius); padding:var(--s-3); font-family:var(--mono); font-size:.8rem; line-height:1.7; color:var(--code-ink); overflow:auto}
+.tk-key{color:#c08cf0}.tk-fn{color:#79c0ff}.tk-str{color:#9ae6a0}.tk-num{color:#f0a35e}.tk-com{color:#6b7390}
+
+/* ---------- Footer ---------- */
+.foot{margin-top:var(--s-7); padding:var(--s-4) 0; border-top:1px solid var(--line); color:var(--ink-faint); font-size:var(--fs-300); display:flex; justify-content:space-between}
+
+@media (max-width:960px){ .hero{grid-template-columns:1fr} .weekgrid{grid-template-columns:repeat(2,1fr)} .peek{grid-template-columns:1fr} .hero h1{font-size:var(--fs-900)} }
+@media (max-width:560px){ .weekgrid{grid-template-columns:1fr} .nav-links{display:none} .hero h1{font-size:var(--fs-800)} }
+</style>
+</head>
+<body>
+<!-- ============ ABOUT THIS DRAFT (for review) ============
+     DIRECTION 03 — "HUB"
+     Goal: orientation. "Where am I in the course, what's next?"
+     This is the screen the current app is MISSING (it dumps you
+     straight into a week). For "study easily," the entry point
+     matters: progress %, week cards with done/current/locked
+     states, and a "Continue where you left off" CTA.
+     Single page goal = resume study. CTA in hero + nav + peek.
+     Trust/motivation: progress ring, weeks-done count, streak.
+     =========================================================== -->
+
+<div class="container">
+  <nav class="nav">
+    <div class="brand"><span class="brand-dot"></span> Web Dev 102 <small>· Interactive Review</small></div>
+    <div class="spacer"></div>
+    <div class="nav-links">
+      <span class="nav-link">Course</span>
+      <span class="nav-link">Progress</span>
+      <span class="nav-link">Help</span>
+    </div>
+    <button class="btn btn--primary">Resume Week 3 →</button>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div>
+      <span class="kicker">● In progress · Week 3</span>
+      <h1>Study Web&nbsp;Dev&nbsp;102,<br>one week at a time.</h1>
+      <p class="lede">Each week is a short loop: read the theory, run the examples, do the practice, then self-check before class. Pick up exactly where you left off.</p>
+      <div class="hero-cta">
+        <button class="btn btn--primary btn--lg">Continue Week 3 →</button>
+        <button class="btn btn--lg">Jump to practice</button>
+      </div>
+      <div class="trust">
+        <span><b>12</b> weeks</span>
+        <span><b>1</b> completed</span>
+        <span><b>3-day</b> study streak</span>
+      </div>
+    </div>
+
+    <div class="statcard">
+      <div class="statcard-head">
+        <div>
+          <div class="statcard-title">Your progress</div>
+          <div class="statcard-sub">Web Development 102</div>
+        </div>
+      </div>
+      <div class="ring-wrap">
+        <div class="ring">
+          <svg width="104" height="104" viewBox="0 0 104 104">
+            <circle class="ring-bg" cx="52" cy="52" r="44" fill="none" stroke-width="10"/>
+            <circle class="ring-fg" cx="52" cy="52" r="44" fill="none" stroke-width="10"
+                    stroke-dasharray="276.5" stroke-dashoffset="207.4"/>
+          </svg>
+          <div class="ring-val"><b>25%</b><small>complete</small></div>
+        </div>
+        <div class="stat-list">
+          <div class="stat-row"><span>Weeks done</span><b>1 / 12</b></div>
+          <div class="stat-row"><span>Exercises solved</span><b>4 / 5</b></div>
+          <div class="stat-row"><span>Current week</span><b>Week 3</b></div>
+          <div class="stat-row"><span>Next class</span><b>Thu</b></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTINUE PEEK -->
+  <div class="sect-head">
+    <h2>Continue where you left off</h2>
+    <a href="#">Open full week →</a>
+  </div>
+  <div class="peek">
+    <div class="peek-left">
+      <div class="peek-kicker">Week 03 · State &amp; User Interaction</div>
+      <h3>Events, State &amp; Array Updates</h3>
+      <p>You're halfway through Practice. Two code exercises left, then the Feynman self-check and class check-in.</p>
+      <div class="peek-steps">
+        <div class="peek-step"><span class="peek-dot done">✓</span> Theory</div>
+        <div class="peek-step"><span class="peek-dot done">✓</span> Examples</div>
+        <div class="peek-step"><span class="peek-dot now">3</span> Practice — 1 of 3 done</div>
+        <div class="peek-step"><span class="peek-dot todo"></span> Feynman Check</div>
+        <div class="peek-step"><span class="peek-dot todo"></span> Before-Class Check-In</div>
+      </div>
+      <div style="margin-top:var(--s-4)"><button class="btn btn--primary btn--lg">Resume practice →</button></div>
+    </div>
+    <div class="peek-right">
+<span class="tk-com">// Exercise 1 — Counting</span>
+<span class="tk-key">let</span> count = <span class="tk-num">0</span>;
+
+<span class="tk-key">function</span> <span class="tk-fn">increaseCount</span>() {
+  <span class="tk-com">// your code here</span>
+}
+
+<span class="tk-fn">increaseCount</span>();
+<span class="tk-fn">increaseCount</span>();
+<span class="tk-fn">increaseCount</span>();
+<span class="tk-com">// expected: count === 3</span></div>
+  </div>
+
+  <!-- WEEK GRID -->
+  <div class="sect-head">
+    <h2>Course map</h2>
+    <a href="#">Show locked weeks</a>
+  </div>
+  <div class="weekgrid" id="grid"></div>
+
+  <footer class="foot">
+    <span>Web Development 102 · Chanbora Seng</span>
+    <span>Draft 03 · Hub — for review</span>
+  </footer>
+</div>
+
+<script>
+// Render the 12-week course map with states.
+const weeks=[
+  {n:'01',t:'Web 101 Review & Intro to React',state:'done',pct:100},
+  {n:'02',t:'Components, Props & Reusable UI',state:'done',pct:100},
+  {n:'03',t:'State & User Interaction',state:'current',pct:50},
+  {n:'04',t:'Forms & Controlled Components',state:'soon',pct:0},
+  {n:'05',t:'Fetching Data from APIs',state:'soon',pct:0},
+  {n:'06',t:'Intro to Node.js & Express',state:'soon',pct:0},
+  {n:'07',t:'API Design, HTTP Methods & Debugging',state:'soon',pct:0},
+  {n:'08',t:'Intro to MongoDB & Mongoose',state:'soon',pct:0},
+  {n:'09',t:'Full CRUD with Express & MongoDB',state:'soon',pct:0},
+  {n:'10',t:'Connecting React to Express',state:'soon',pct:0},
+  {n:'11',t:'Final Project Preparation',state:'soon',pct:0},
+  {n:'12',t:'Final Project Presentation',state:'soon',pct:0},
+];
+const labels={done:'Done',current:'In progress',soon:'Soon'};
+const grid=document.getElementById('grid');
+weeks.forEach(w=>{
+  const locked = w.state==='soon';
+  const el=document.createElement('div');
+  el.className='wcard'+(w.state==='current'?' wcard--current':'')+(locked?' wcard--locked':'');
+  el.innerHTML=`
+    <div class="wcard-top">
+      <span class="wnum">WEEK ${w.n}</span>
+      <span class="wstate state-${w.state}">${labels[w.state]}</span>
+    </div>
+    <div class="wtitle">${w.t}</div>
+    <div class="wmeta">${w.state==='done'?'✓ Completed':w.state==='current'?'50% · 2 steps left':'Not started'}</div>
+    <div class="wbar"><div class="wbar-fill ${w.state==='done'?'done':''}" style="width:${w.pct}%"></div></div>`;
+  grid.appendChild(el);
+});
+</script>
+</body>
+</html>
