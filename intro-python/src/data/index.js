@@ -1,6 +1,6 @@
 // The course menu. Every page the app knows about is registered here.
-// Pages are grouped into sections (Review by Skill, Game Reviews, Debug
-// Common Bugs, Project Readiness, Final Project Ideas).
+// Pages are grouped into sections (Review by Week, Review by Skill,
+// Game Reviews, Debug Common Bugs, Project Readiness, Final Project Ideas).
 
 import conditionals from './skills/conditionals.js'
 import loops from './skills/loops.js'
@@ -24,6 +24,7 @@ import indentation from './bugs/indentation.js'
 
 import readiness from './readiness.js'
 import projects from './projects.js'
+import weeks from './weeks/index.js'
 
 const skills = [conditionals, loops, functions, lists, dictionaries, tryexcept]
 const reviews = [numberGuessing, rockPaperScissors]
@@ -41,11 +42,13 @@ const bugs = [
 
 const page = (slug, title, kind, data) => ({ slug, title, kind, data })
 
+const weekPages = weeks.map((w) => page(w.slug, w.title, 'week', w))
 const skillPages = skills.map((s) => page(s.slug, s.title, 'skill', s))
 const reviewPages = reviews.map((r) => page(r.slug, r.title, 'review', r))
 const bugPages = bugs.map((b) => page(b.slug, b.title, 'bug', b))
 
 export const NAV = [
+  { section: 'Review by Week', pages: weekPages },
   { section: 'Review by Skill', pages: skillPages },
   { section: 'Game Reviews', pages: reviewPages },
   { section: 'Debug Common Bugs', pages: bugPages },

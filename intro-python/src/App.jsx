@@ -5,6 +5,7 @@ import SkillView from './components/SkillView.jsx'
 import BugView from './components/BugView.jsx'
 import ReadinessView from './components/ReadinessView.jsx'
 import ProjectCards from './components/ProjectCards.jsx'
+import WeekView from './components/WeekView.jsx'
 
 const STORAGE_KEY = 'ip-explored'
 
@@ -77,6 +78,8 @@ export default function App() {
         return <ReadinessView readiness={page.data} />
       case 'projects':
         return <ProjectCards projects={page.data} />
+      case 'week':
+        return <WeekView week={page.data} onNavigate={select} />
       default:
         return null
     }

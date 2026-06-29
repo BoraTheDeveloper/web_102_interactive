@@ -1,5 +1,5 @@
-// The course menu. Pages are grouped into sections: Visual Concepts,
-// Space Shooter Repair Center, and Final Project (builder + ideas).
+// The course menu. Pages are grouped into sections: Review by Week,
+// Visual Concepts, Space Shooter Repair Center, and Final Project.
 
 import gameLoop from './concepts/game-loop.js'
 import coordinates from './concepts/coordinates.js'
@@ -8,6 +8,9 @@ import input from './concepts/input.js'
 import deltaTime from './concepts/delta-time.js'
 import classes from './concepts/classes.js'
 import spriteGroups from './concepts/sprite-groups.js'
+import drawOrder from './concepts/draw-order.js'
+import timerEvents from './concepts/timer-events.js'
+import collisionGroups from './concepts/collision-groups.js'
 
 import windowOpens from './repairs/window-opens-closes.js'
 import imageMissing from './repairs/image-missing.js'
@@ -22,8 +25,9 @@ import classError from './repairs/class-error.js'
 import spriteGroupNoDraw from './repairs/sprite-group-no-draw.js'
 
 import projects, { builder } from './projects.js'
+import weeks from './weeks/index.js'
 
-const concepts = [gameLoop, coordinates, rectCollision, input, deltaTime, classes, spriteGroups]
+const concepts = [gameLoop, coordinates, rectCollision, input, deltaTime, classes, spriteGroups, drawOrder, timerEvents, collisionGroups]
 const repairs = [
   windowOpens,
   imageMissing,
@@ -40,10 +44,12 @@ const repairs = [
 
 const page = (slug, title, kind, data) => ({ slug, title, kind, data })
 
+const weekPages = weeks.map((w) => page(w.slug, w.title, 'week', w))
 const conceptPages = concepts.map((c) => page(c.slug, c.title, 'concept', c))
 const repairPages = repairs.map((r) => page(r.slug, r.title, 'repair', r))
 
 export const NAV = [
+  { section: 'Review by Week', pages: weekPages },
   { section: 'Visual Concepts', pages: conceptPages },
   { section: 'Space Shooter Repair Center', pages: repairPages },
   {

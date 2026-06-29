@@ -5,6 +5,7 @@ import ConceptView from './components/ConceptView.jsx'
 import RepairView from './components/RepairView.jsx'
 import ProjectBuilderView from './components/ProjectBuilderView.jsx'
 import ProjectCards from './components/ProjectCards.jsx'
+import WeekView from './components/WeekView.jsx'
 
 const STORAGE_KEY = 'gd-explored'
 
@@ -76,6 +77,8 @@ export default function App() {
         return <ProjectBuilderView builder={page.data} />
       case 'projects':
         return <ProjectCards projects={page.data} />
+      case 'week':
+        return <WeekView week={page.data} onNavigate={select} />
       default:
         return null
     }

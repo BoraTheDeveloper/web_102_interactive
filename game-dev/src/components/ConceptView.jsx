@@ -6,6 +6,9 @@ import RectVisualizer from './RectVisualizer.jsx'
 import InputDemo from './InputDemo.jsx'
 import DeltaTimeDemo from './DeltaTimeDemo.jsx'
 import SpriteGroupDemo from './SpriteGroupDemo.jsx'
+import DrawOrderDemo from './DrawOrderDemo.jsx'
+import TimerEventsDemo from './TimerEventsDemo.jsx'
+import CollisionGroupsDemo from './CollisionGroupsDemo.jsx'
 import RichText from './RichText.jsx'
 
 function renderDemo(concept) {
@@ -24,6 +27,12 @@ function renderDemo(concept) {
       return <DeltaTimeDemo config={config} />
     case 'spriteGroup':
       return <SpriteGroupDemo config={config} />
+    case 'drawOrder':
+      return <DrawOrderDemo config={config} />
+    case 'timerEvents':
+      return <TimerEventsDemo config={config} />
+    case 'collisionGroups':
+      return <CollisionGroupsDemo config={config} />
     default:
       return null
   }
