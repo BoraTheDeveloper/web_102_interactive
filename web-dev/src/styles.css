@@ -189,6 +189,24 @@ pre {
   gap: 4px;
 }
 
+.rail-label--resources {
+  margin-top: 28px;
+}
+
+.week-link--resource {
+  text-decoration: none;
+}
+
+.week-link--resource .week-num {
+  color: var(--accent);
+}
+
+.week-link--resource:hover {
+  color: var(--ink);
+  background: var(--accent-soft);
+  border-color: var(--accent-line);
+}
+
 .week-link {
   display: flex;
   align-items: center;

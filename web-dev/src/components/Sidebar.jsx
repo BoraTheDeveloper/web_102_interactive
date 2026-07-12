@@ -31,6 +31,19 @@ export default function Sidebar({ weeks, activeSlug, onSelect }) {
           )
         })}
       </nav>
+
+      <p className="rail-label rail-label--resources">Resources</p>
+      <nav className="week-nav" aria-label="Resources">
+        <a
+          className="week-link week-link--resource"
+          href="/web-dev/git-and-project-guide.html"
+          target="_blank"
+          rel="noopener"
+        >
+          <span className="week-num" aria-hidden="true">↗</span>
+          <span className="week-name">Team Project Guide</span>
+        </a>
+      </nav>
     </aside>
   )
 }

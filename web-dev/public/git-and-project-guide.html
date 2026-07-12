@@ -1,0 +1,635 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="preconnect" href="https://api.fontshare.com" crossorigin />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://api.fontshare.com/v2/css?f[]=clash-display@500,600,700&f[]=satoshi@400,500,700&display=swap"
+    rel="stylesheet"
+  />
+  <link
+    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+  <title>Git &amp; Project Guide · Web Dev 102</title>
+<style>
+  :root {
+    color-scheme: light;
+
+    /* --- interactive_course palette --- */
+    --paper: #fbfaf7;
+    --surface: #ffffff;
+    --surface-2: #f2efe8;
+    --ink: #1c1f26;
+    --ink-soft: #5b6270;
+    --ink-faint: #8a909c;
+    --line: #e7e4dc;
+    --line-strong: #d8d4ca;
+
+    --accent: #4f46e5;                     /* indigo — the course brand, = VS Code */
+    --accent-soft: rgba(79, 70, 229, 0.10);
+    --accent-line: rgba(79, 70, 229, 0.24);
+
+    --term: #15803d;                       /* green — the course "pass", = Terminal */
+    --term-soft: #e8f3ec;
+    --term-line: #bfe6cf;
+
+    --warn: #b4671f;                       /* warm amber for cautions */
+    --warn-soft: #fbf0e2;
+    --warn-line: #edcfa4;
+
+    --code-bg: #171a24;
+    --code-ink: #e6e8ef;
+    --code-dim: #7d8597;
+    --code-green: #9ae6a0;
+
+    --radius: 14px;
+    --radius-sm: 10px;
+
+    --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --sans: "Satoshi", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --display: "Clash Display", "Satoshi", system-ui, sans-serif;
+    --measure: 66ch;
+
+    --fs-300: 0.875rem;
+    --fs-400: 1rem;
+    --fs-500: 1.25rem;
+    --fs-600: 1.5rem;
+    --fs-700: 2rem;
+    --fs-800: 2.5rem;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: var(--fs-400);
+    line-height: 1.6;
+    letter-spacing: 0.005em;
+    -webkit-font-smoothing: antialiased;
+  }
+  code, pre { font-family: var(--mono); }
+
+  /* ---------- topbar ---------- */
+  .topbar {
+    display: flex; align-items: center; gap: 16px;
+    padding: 18px 32px;
+    border-bottom: 1px solid var(--line);
+    background: rgba(251, 250, 247, 0.9);
+  }
+  .brand {
+    display: flex; align-items: center; gap: 14px;
+    font-family: var(--display); font-size: var(--fs-500);
+    font-weight: 600; letter-spacing: -0.015em;
+    color: inherit; text-decoration: none;
+  }
+  .brand:hover { text-decoration: none; }
+  .brand-dot {
+    width: 12px; height: 12px; border-radius: 4px;
+    background: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft);
+  }
+  .topbar-spacer { flex: 1; }
+  .topbar-context {
+    color: var(--ink-soft); font-size: var(--fs-300);
+    font-family: var(--mono); letter-spacing: 0.02em;
+  }
+
+  .wrap { max-width: 900px; margin: 0 auto; padding: 56px 32px 96px; }
+
+  /* ---------- hero ---------- */
+  .hero { max-width: var(--measure); margin-bottom: 8px; }
+  .kicker {
+    display: inline-flex; align-items: center; margin-bottom: 18px;
+    padding: 6px 13px; color: var(--accent); background: var(--accent-soft);
+    border-radius: 999px; font-family: var(--mono); font-size: var(--fs-300);
+    line-height: 1.25; letter-spacing: 0.02em;
+  }
+  .hero h1 {
+    margin: 0; font-family: var(--display);
+    font-size: clamp(2rem, 6vw, 3rem); font-weight: 600;
+    line-height: 1.06; letter-spacing: -0.03em; text-wrap: balance;
+  }
+  .hero p {
+    max-width: var(--measure); margin: 16px 0 0;
+    color: var(--ink-soft); font-size: var(--fs-500); line-height: 1.5;
+  }
+
+  /* ---------- sections ---------- */
+  section { margin-top: 64px; }
+  .section-head {
+    display: grid; grid-template-columns: 56px minmax(0, 1fr);
+    align-items: center; gap: 18px;
+    margin-bottom: 22px; padding-bottom: 16px;
+    border-bottom: 1px solid var(--line);
+  }
+  .section-num {
+    font-family: var(--display); font-size: var(--fs-700); font-weight: 600;
+    line-height: 1; letter-spacing: -0.02em; color: var(--ink-faint);
+    font-variant-numeric: tabular-nums;
+  }
+  .section-head h2 {
+    margin: 0; font-family: var(--display); font-size: var(--fs-700);
+    font-weight: 600; line-height: 1; letter-spacing: -0.02em; text-wrap: balance;
+  }
+  .lede { max-width: var(--measure); margin: 0 0 26px; color: var(--ink-soft); }
+  .lede strong { color: var(--ink); font-weight: 700; }
+
+  /* ---------- generic card ---------- */
+  .card {
+    overflow: hidden; background: var(--surface);
+    border: 1px solid var(--line); border-radius: var(--radius);
+  }
+  .card + .card { margin-top: 20px; }
+  .card-body { padding: 24px 28px; }
+
+  /* ---------- file tree (dark code block) ---------- */
+  .tree {
+    margin: 0; padding: 22px 26px; overflow-x: auto; white-space: pre;
+    background: var(--code-bg); color: var(--code-ink);
+    border-radius: var(--radius); font-family: var(--mono);
+    font-size: 0.8125rem; line-height: 1.85;
+  }
+  .tree .dir { color: #79c0ff; font-weight: 600; }   /* prism function-blue for folders */
+  .tree .cmt { color: var(--code-dim); font-style: italic; }
+  .tree .warnf { color: #f0a35e; font-weight: 600; } /* prism number-orange for secret */
+
+  ul.reasons { margin: 24px 0 0; padding-left: 22px; }
+  ul.reasons li { margin: 12px 0; line-height: 1.55; }
+  ul.reasons b { color: var(--ink); font-weight: 700; }
+  .m { font-family: var(--mono); font-size: 0.9em; }
+
+  /* ---------- note (goal-card style: 3px left accent) ---------- */
+  .note {
+    display: flex; gap: 22px; margin-top: 22px;
+    padding: 18px 24px; background: var(--surface);
+    border: 1px solid var(--line); border-left: 3px solid var(--ink-faint);
+    border-radius: var(--radius);
+  }
+  .note .note-label {
+    flex: none; padding-top: 2px; width: 84px;
+    font-family: var(--mono); font-size: var(--fs-300);
+    letter-spacing: 0.06em; text-transform: uppercase; line-height: 1.4;
+  }
+  .note .note-body { margin: 0; color: var(--ink-soft); line-height: 1.55; }
+  .note .note-body b { color: var(--ink); font-weight: 700; }
+  .note--warn { border-left-color: var(--warn); }
+  .note--warn .note-label { color: var(--warn); }
+  .note--info { border-left-color: var(--accent); }
+  .note--info .note-label { color: var(--accent); }
+  .note--go { border-left-color: var(--term); }
+  .note--go .note-label { color: var(--term); }
+
+  /* ---------- command card ---------- */
+  .cmd-head {
+    display: flex; align-items: center; gap: 16px;
+    padding: 20px 28px; border-bottom: 1px solid var(--line);
+  }
+  .cmd-name {
+    font-family: var(--mono); font-weight: 700; font-size: var(--fs-500);
+    color: var(--ink); letter-spacing: -0.01em;
+  }
+  .cmd-what { color: var(--ink-soft); font-size: var(--fs-300); margin-left: auto; text-align: right; }
+
+  .split { display: grid; grid-template-columns: 1fr 1fr; }
+  .split > div { padding: 22px 26px; }
+  .split > div:first-child { border-right: 1px solid var(--line); }
+  .col-head {
+    display: flex; align-items: center; gap: 9px; margin-bottom: 14px;
+    font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.1em;
+    text-transform: uppercase; font-weight: 500;
+  }
+  .col-head .dot { width: 9px; height: 9px; border-radius: 3px; flex: none; }
+  .col-term .col-head { color: var(--term); }
+  .col-term .dot { background: var(--term); }
+  .col-vs .col-head { color: var(--accent); }
+  .col-vs .dot { background: var(--accent); }
+
+  .terminal {
+    padding: 14px 16px; overflow-x: auto;
+    background: var(--code-bg); color: var(--code-ink);
+    border-radius: var(--radius-sm); font-family: var(--mono);
+    font-size: 0.8125rem; line-height: 1.75;
+  }
+  .terminal .line { white-space: pre; }
+  .terminal .p { color: var(--code-green); user-select: none; }
+  .terminal .c { color: var(--code-dim); font-style: italic; }
+
+  ol.steps { margin: 0; padding: 0; list-style: none; counter-reset: s; }
+  ol.steps li {
+    counter-increment: s; position: relative; padding-left: 32px;
+    margin: 11px 0; font-size: var(--fs-300); line-height: 1.5;
+  }
+  ol.steps li::before {
+    content: counter(s); position: absolute; left: 0; top: 0;
+    width: 21px; height: 21px; border-radius: 999px;
+    background: var(--accent-soft); color: var(--accent);
+    font-family: var(--mono); font-size: 0.72rem; font-weight: 700;
+    display: grid; place-items: center;
+  }
+  kbd {
+    font-family: var(--mono); font-size: 0.75rem; white-space: nowrap;
+    background: var(--surface-2); color: var(--ink);
+    border: 1px solid var(--line-strong); border-bottom-width: 2px;
+    border-radius: 5px; padding: 1px 6px;
+  }
+  .ui { font-weight: 600; color: var(--ink); }
+  .swatch { font-weight: 700; }
+  .swatch.t { color: var(--term); }
+  .swatch.v { color: var(--accent); }
+
+  /* ---------- daily routine ---------- */
+  .flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 10px; }
+  .flow .step {
+    flex: 1 1 140px; padding: 16px 18px;
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: var(--radius); border-top: 3px solid var(--accent);
+  }
+  .flow .step .k {
+    display: flex; align-items: baseline; gap: 8px;
+    font-family: var(--mono); font-weight: 700; color: var(--ink); font-size: var(--fs-400);
+  }
+  .flow .step .k span { color: var(--accent); font-size: var(--fs-300); }
+  .flow .step .d { margin-top: 6px; color: var(--ink-soft); font-size: var(--fs-300); line-height: 1.45; }
+  .flow .arrow { align-self: center; color: var(--ink-faint); font-size: var(--fs-500); }
+
+  /* ---------- hosting ---------- */
+  .host-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .host {
+    padding: 22px; background: var(--surface);
+    border: 1px solid var(--line); border-radius: var(--radius);
+  }
+  .host .part {
+    font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--ink-faint);
+  }
+  .host h3 {
+    margin: 10px 0 2px; font-family: var(--display);
+    font-size: var(--fs-500); font-weight: 600; letter-spacing: -0.01em;
+  }
+  .host .where { color: var(--accent); font-weight: 700; font-size: var(--fs-400); font-family: var(--mono); }
+  .host .where a { color: inherit; }
+  .host p { margin: 10px 0 0; color: var(--ink-soft); font-size: var(--fs-300); line-height: 1.5; }
+
+  /* config lists (Part 5) */
+  .cfg { margin: 0; font-size: var(--fs-300); line-height: 1.5; }
+  .cfg dt {
+    margin-top: 13px; color: var(--ink-soft); font-family: var(--mono);
+    font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase;
+  }
+  .cfg dt:first-child { margin-top: 0; }
+  .cfg dd { margin: 3px 0 0; color: var(--ink); }
+
+  /* ---------- footer ---------- */
+  footer {
+    margin-top: 72px; padding-top: 24px; border-top: 1px solid var(--line);
+    display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+    color: var(--ink-soft); font-size: var(--fs-300);
+  }
+  footer .brand-dot { width: 10px; height: 10px; }
+  footer .fill { flex: 1; }
+  footer .tip { color: var(--ink-faint); }
+  footer .tip .m { color: var(--ink-soft); }
+
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px; }
+
+  /* ---------- entrance ---------- */
+  @media (prefers-reduced-motion: no-preference) {
+    .wrap > * { animation: rise 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+    .hero { animation-delay: 0.02s; }
+    section:nth-of-type(1) { animation-delay: 0.08s; }
+    section:nth-of-type(2) { animation-delay: 0.12s; }
+    section:nth-of-type(3) { animation-delay: 0.16s; }
+    section:nth-of-type(4) { animation-delay: 0.20s; }
+    section:nth-of-type(5) { animation-delay: 0.24s; }
+    @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  }
+
+  /* ---------- responsive ---------- */
+  @media (max-width: 680px) {
+    .wrap { padding: 40px 20px 72px; }
+    .topbar { padding: 16px 20px; }
+    .split { grid-template-columns: 1fr; }
+    .split > div:first-child { border-right: none; border-bottom: 1px solid var(--line); }
+    .cmd-head { flex-direction: column; align-items: flex-start; gap: 4px; }
+    .cmd-what { margin-left: 0; text-align: left; }
+    .host-grid { grid-template-columns: 1fr; }
+    .section-head { grid-template-columns: 44px minmax(0, 1fr); gap: 14px; }
+    .note { flex-direction: column; gap: 6px; }
+    .note .note-label { width: auto; }
+  }
+
+  @media print {
+    .wrap > * { animation: none !important; }
+    body { background: #fff; }
+    .card, .host, .note, .flow .step { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="brand" href="./"><span class="brand-dot"></span> Web Dev 102</a>
+  <span class="topbar-spacer"></span>
+  <span class="topbar-context">Team Project Handbook</span>
+</div>
+
+<div class="wrap">
+
+  <header class="hero">
+    <span class="kicker">git &amp; teamwork</span>
+    <h1>Working on the same code, together</h1>
+    <p>How to set up your project so your whole team can build it — plus a Git cheatsheet two ways: in the <strong>terminal</strong> and in <strong>VS Code Source Control</strong>. Keep this open while you work.</p>
+  </header>
+
+  <!-- ========== PART 1: STRUCTURE ========== -->
+  <section>
+    <div class="section-head"><span class="section-num">01</span><h2>How to structure your project</h2></div>
+    <p class="lede">Your app has two halves — the <strong>frontend</strong> (React, what people see) and the <strong>backend</strong> (Express + MongoDB, the data). Both live in <strong>one repo</strong>, in two folders.</p>
+
+    <div class="card">
+      <div class="card-body">
+<pre class="tree"><span class="dir">team-project/</span>
+├── .gitignore            <span class="cmt"># ignores node_modules + .env</span>
+├── README.md             <span class="cmt"># how to run the app</span>
+│
+├── <span class="dir">frontend/</span>              <span class="cmt"># your React app (Vite)</span>
+│   ├── <span class="dir">src/</span>
+│   │   ├── App.jsx
+│   │   ├── main.jsx
+│   │   └── <span class="dir">components/</span>
+│   ├── index.html
+│   └── package.json      <span class="cmt"># react, vite</span>
+│
+└── <span class="dir">backend/</span>               <span class="cmt"># your Express API</span>
+    ├── server.js
+    ├── <span class="dir">models/</span>            <span class="cmt"># Mongoose schemas</span>
+    ├── <span class="dir">routes/</span>            <span class="cmt"># GET / POST / PUT / DELETE</span>
+    ├── <span class="warnf">.env</span>               <span class="cmt"># SECRET — never commit this!</span>
+    ├── .env.example       <span class="cmt"># blank template — safe to commit</span>
+    └── package.json      <span class="cmt"># express, mongoose, dotenv</span></pre>
+
+        <ul class="reasons">
+          <li><b>One repo, one <span class="m">git clone</span>.</b> A teammate gets the whole app at once — the frontend and its matching backend never drift apart.</li>
+          <li><b>The two folders keep you from bumping into each other.</b> One person works in <span class="m">frontend/</span>, another in <span class="m">backend/</span> — you rarely touch the same file, so merge problems stay rare.</li>
+          <li><b>Two <span class="m">package.json</span> files is normal.</b> Run <span class="m">npm install</span> inside <em>both</em> folders once, then start two servers in two terminals.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="note note--warn">
+      <span class="note-label">Security</span>
+      <p class="note-body"><b>Never commit your <span class="m">.env</span> file.</b> It holds your MongoDB password. Share it with teammates over chat instead, and commit a blank <span class="m">.env.example</span> so everyone knows which keys they need.</p>
+    </div>
+  </section>
+
+  <!-- ========== PART 2: CHEATSHEET ========== -->
+  <section>
+    <div class="section-head"><span class="section-num">02</span><h2>Git cheatsheet</h2></div>
+    <p class="lede">Every command, two ways. Pick whichever you like — both do exactly the same thing. <span class="swatch t">Green = Terminal</span> · <span class="swatch v">Indigo = VS Code Source Control</span> (the branch icon in the left bar, or <kbd>Ctrl/Cmd</kbd> <kbd>Shift</kbd> <kbd>G</kbd>).</p>
+
+    <!-- STATUS -->
+    <div class="card">
+      <div class="cmd-head">
+        <span class="cmd-name">status</span>
+        <span class="cmd-what">See what you've changed — before you commit</span>
+      </div>
+      <div class="split">
+        <div class="col-term">
+          <div class="col-head"><span class="dot"></span>Terminal</div>
+          <div class="terminal"><span class="line"><span class="p">$</span> git status</span></div>
+        </div>
+        <div class="col-vs">
+          <div class="col-head"><span class="dot"></span>VS Code</div>
+          <ol class="steps">
+            <li>Open the <span class="ui">Source Control</span> panel (branch icon).</li>
+            <li>Changed files appear under <span class="ui">Changes</span>. That list <em>is</em> your status.</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+
+    <!-- COMMIT -->
+    <div class="card">
+      <div class="cmd-head">
+        <span class="cmd-name">commit</span>
+        <span class="cmd-what">Save a snapshot of your work, with a message</span>
+      </div>
+      <div class="split">
+        <div class="col-term">
+          <div class="col-head"><span class="dot"></span>Terminal</div>
+          <div class="terminal"><span class="line"><span class="c"># stage the files you changed</span></span>
+<span class="line"><span class="p">$</span> git add .</span>
+<span class="line"><span class="c"># save them with a message</span></span>
+<span class="line"><span class="p">$</span> git commit -m "Add task form"</span></div>
+        </div>
+        <div class="col-vs">
+          <div class="col-head"><span class="dot"></span>VS Code</div>
+          <ol class="steps">
+            <li>Hover a file, click <span class="ui">+</span> to stage it (or the <span class="ui">+</span> next to <span class="ui">Changes</span> for all).</li>
+            <li>Type a message in the box at the top.</li>
+            <li>Click the <span class="ui">✓ Commit</span> button.</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+
+    <!-- PUSH -->
+    <div class="card">
+      <div class="cmd-head">
+        <span class="cmd-name">push</span>
+        <span class="cmd-what">Send your commits up to GitHub for teammates</span>
+      </div>
+      <div class="split">
+        <div class="col-term">
+          <div class="col-head"><span class="dot"></span>Terminal</div>
+          <div class="terminal"><span class="line"><span class="p">$</span> git push</span></div>
+        </div>
+        <div class="col-vs">
+          <div class="col-head"><span class="dot"></span>VS Code</div>
+          <ol class="steps">
+            <li>Click <span class="ui">Sync Changes</span> (the ⟳ button after committing),</li>
+            <li>or the <span class="ui">···</span> menu → <span class="ui">Push</span>.</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+
+    <!-- PULL -->
+    <div class="card">
+      <div class="cmd-head">
+        <span class="cmd-name">pull</span>
+        <span class="cmd-what">Get your teammates' latest code onto your computer</span>
+      </div>
+      <div class="split">
+        <div class="col-term">
+          <div class="col-head"><span class="dot"></span>Terminal</div>
+          <div class="terminal"><span class="line"><span class="p">$</span> git pull</span></div>
+        </div>
+        <div class="col-vs">
+          <div class="col-head"><span class="dot"></span>VS Code</div>
+          <ol class="steps">
+            <li>Click <span class="ui">Sync Changes</span> (it pulls <em>and</em> pushes),</li>
+            <li>or the <span class="ui">···</span> menu → <span class="ui">Pull</span>.</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+
+    <!-- STASH -->
+    <div class="card">
+      <div class="cmd-head">
+        <span class="cmd-name">stash</span>
+        <span class="cmd-what">Tuck unfinished work in a drawer, then get it back</span>
+      </div>
+      <div class="split">
+        <div class="col-term">
+          <div class="col-head"><span class="dot"></span>Terminal</div>
+          <div class="terminal"><span class="line"><span class="c"># hide changes so you can pull cleanly</span></span>
+<span class="line"><span class="p">$</span> git stash</span>
+<span class="line"></span>
+<span class="line"><span class="c"># take them back out later</span></span>
+<span class="line"><span class="p">$</span> git stash pop</span></div>
+        </div>
+        <div class="col-vs">
+          <div class="col-head"><span class="dot"></span>VS Code</div>
+          <ol class="steps">
+            <li>Click the <span class="ui">···</span> menu → <span class="ui">Stash</span> → <span class="ui">Stash</span>.</li>
+            <li>To bring it back: <span class="ui">···</span> → <span class="ui">Stash</span> → <span class="ui">Pop Latest Stash</span>.</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+
+    <div class="note note--info">
+      <span class="note-label">When?</span>
+      <p class="note-body"><b>When do I stash?</b> Git won't let you <span class="m">pull</span> if you have unsaved changes it might overwrite. <span class="m">stash</span> puts them safely aside so the pull works, then <span class="m">stash pop</span> lays your work back on top.</p>
+    </div>
+  </section>
+
+  <!-- ========== PART 3: DAILY ROUTINE ========== -->
+  <section>
+    <div class="section-head"><span class="section-num">03</span><h2>Your safe daily routine</h2></div>
+    <p class="lede">Do these in order every time you sit down to code. It keeps the team's code tidy and avoids most conflicts.</p>
+    <div class="flow">
+      <div class="step"><div class="k"><span>1</span> pull</div><div class="d">Get the latest team code first.</div></div>
+      <span class="arrow">→</span>
+      <div class="step"><div class="k"><span>2</span> build</div><div class="d">Write your feature.</div></div>
+      <span class="arrow">→</span>
+      <div class="step"><div class="k"><span>3</span> status</div><div class="d">Check what you changed.</div></div>
+      <span class="arrow">→</span>
+      <div class="step"><div class="k"><span>4</span> commit</div><div class="d">Save with a clear message.</div></div>
+      <span class="arrow">→</span>
+      <div class="step"><div class="k"><span>5</span> push</div><div class="d">Share it with the team.</div></div>
+    </div>
+  </section>
+
+  <!-- ========== PART 4: HOSTING ========== -->
+  <section>
+    <div class="section-head"><span class="section-num">04</span><h2>Putting it online (hosting)</h2></div>
+    <p class="lede">You host a full-stack app in <strong>three pieces</strong>, each in a different place. They connect over the internet, the same way they did on your computer. All three have free plans, and each one connects straight to your GitHub repo.</p>
+
+    <div class="host-grid">
+      <div class="host">
+        <div class="part">Piece 1 · Frontend</div>
+        <h3>React app</h3>
+        <div class="where">→ <a href="https://vercel.com" target="_blank" rel="noopener">Vercel</a></div>
+        <p>Import your GitHub repo, point it at the <span class="m">frontend/</span> folder, click deploy. Easiest win — start here.</p>
+      </div>
+      <div class="host">
+        <div class="part">Piece 2 · Backend</div>
+        <h3>Express API</h3>
+        <div class="where">→ <a href="https://render.com" target="_blank" rel="noopener">Render</a></div>
+        <p>New Web Service from your repo, root = <span class="m">backend/</span>. Paste your secret keys into its <span class="ui">Environment</span> tab.</p>
+      </div>
+      <div class="host">
+        <div class="part">Piece 3 · Database</div>
+        <h3>MongoDB</h3>
+        <div class="where">→ <a href="https://www.mongodb.com/atlas" target="_blank" rel="noopener">Atlas</a></div>
+        <p>Already done! You're using Atlas in class, so your database is <em>already</em> in the cloud. Nothing to move.</p>
+      </div>
+    </div>
+
+    <div class="note note--warn">
+      <span class="note-label">Watch out</span>
+      <p class="note-body"><b>The one thing that always breaks:</b> the API address. In class your React app calls <span class="m">http://localhost:5000</span>. Once hosted, the backend lives at a new address like <span class="m">https://your-app.onrender.com</span>. Save that address in one variable (e.g. <span class="m">API_URL</span>) so you only change it in <em>one</em> place — not in every <span class="m">fetch()</span>.</p>
+    </div>
+    <div class="note note--go">
+      <span class="note-label">Take it slow</span>
+      <p class="note-body"><b>One piece at a time.</b> Hosting is a real level-up. Get the frontend live first (it's the simplest and most exciting to share), then do the backend, then connect the two. You don't have to do it all in one day.</p>
+    </div>
+  </section>
+
+  <!-- ========== PART 5: DEPLOY FROM GITHUB ========== -->
+  <section>
+    <div class="section-head"><span class="section-num">05</span><h2>Deploy straight from your GitHub repo</h2></div>
+    <p class="lede">Both hosts read your code <strong>from GitHub</strong> and rebuild every time you <span class="m">git push</span>. Because your frontend and backend share one repo, the only real trick is telling each host <strong>which folder to build</strong> — the <strong>Root Directory</strong> setting.</p>
+
+    <div class="card">
+      <div class="cmd-head">
+        <span class="cmd-name">Root Directory</span>
+        <span class="cmd-what">The one setting that makes a shared repo work</span>
+      </div>
+      <div class="split">
+        <div class="col-vs">
+          <div class="col-head"><span class="dot"></span>Vercel · frontend</div>
+          <dl class="cfg">
+            <dt>Root Directory</dt><dd><span class="m">frontend</span></dd>
+            <dt>Framework</dt><dd>Vite</dd>
+            <dt>Build Command</dt><dd><span class="m">npm run build</span></dd>
+            <dt>Output Directory</dt><dd><span class="m">dist</span></dd>
+            <dt>Environment</dt><dd><span class="m">VITE_API_URL</span> = your Render URL</dd>
+          </dl>
+        </div>
+        <div class="col-term">
+          <div class="col-head"><span class="dot"></span>Render · backend</div>
+          <dl class="cfg">
+            <dt>Root Directory</dt><dd><span class="m">backend</span></dd>
+            <dt>Runtime</dt><dd>Node</dd>
+            <dt>Build Command</dt><dd><span class="m">npm install</span></dd>
+            <dt>Start Command</dt><dd><span class="m">node server.js</span></dd>
+            <dt>Environment</dt><dd><span class="m">MONGO_URI</span> = your Atlas string</dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+
+    <p class="lede" style="margin: 30px 0 20px;">Do it in this order:</p>
+    <div class="card">
+      <div class="card-body">
+        <ol class="steps">
+          <li><b>Push your repo to <a href="https://github.com" target="_blank" rel="noopener">GitHub</a>.</b> Both hosts connect to it from there.</li>
+          <li><b>Backend first, on <a href="https://render.com" target="_blank" rel="noopener">Render</a>.</b> New Web Service → pick your repo → set Root Directory to <span class="m">backend</span> → add <span class="m">MONGO_URI</span> → deploy. Copy the URL it hands you, like <span class="m">https://your-app.onrender.com</span>.</li>
+          <li><b>Frontend on <a href="https://vercel.com" target="_blank" rel="noopener">Vercel</a>.</b> Import the <em>same</em> repo → set Root Directory to <span class="m">frontend</span> → add <span class="m">VITE_API_URL</span> = the Render URL → deploy.</li>
+          <li><b>Every push redeploys.</b> After this, <span class="m">git push</span> updates the live site on its own — no extra steps.</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="note note--warn">
+      <span class="note-label">CORS</span>
+      <p class="note-body"><b>Let the frontend talk to the backend.</b> By default the browser blocks your Vercel site from calling your Render API, because they live at different addresses. In <span class="m">server.js</span>, install and enable <span class="m">cors</span> — <span class="m">app.use(cors())</span> allows everyone, or pass your Vercel URL to allow only your site.</p>
+    </div>
+    <div class="note note--info">
+      <span class="note-label">Secrets</span>
+      <p class="note-body"><b>Env vars live on the host, not in the repo.</b> Your <span class="m">.env</span> is gitignored, so retype those keys in each host's Environment settings. That's why <span class="m">MONGO_URI</span> goes in Render and <span class="m">VITE_API_URL</span> goes in Vercel — the repo never carries them.</p>
+    </div>
+  </section>
+
+  <footer>
+    <span class="brand-dot"></span>
+    <span>Web Development 102 · Instructor: Chanbora Seng</span>
+    <span class="fill"></span>
+    <span class="tip">Stuck? Run <span class="m">git status</span> first — it almost always tells you what to do next.</span>
+  </footer>
+
+</div>
+</body>
+</html>
