@@ -48,7 +48,7 @@ const weekPages = weeks.map((w) => page(w.slug, w.title, 'week', w))
 const conceptPages = concepts.map((c) => page(c.slug, c.title, 'concept', c))
 const repairPages = repairs.map((r) => page(r.slug, r.title, 'repair', r))
 
-export const NAV = [
+const NAV = [
   { section: 'Review by Week', pages: weekPages },
   { section: 'Visual Concepts', pages: conceptPages },
   { section: 'Space Shooter Repair Center', pages: repairPages },
@@ -61,8 +61,4 @@ export const NAV = [
   },
 ]
 
-const ALL = NAV.flatMap((g) => g.pages)
-
-export function getPage(slug) {
-  return ALL.find((p) => p.slug === slug)
-}
+export default NAV

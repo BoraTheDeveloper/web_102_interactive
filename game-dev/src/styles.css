@@ -1970,3 +1970,71 @@ pre {
   font-size: var(--fs-300);
   font-weight: 500;
 }
+
+/* ---------- Term picker ---------- */
+
+.term-picker {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+}
+
+.term-picker-inner {
+  width: 100%;
+  max-width: 720px;
+}
+
+.term-picker-head {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.term-picker-head .week-title {
+  margin-bottom: 8px;
+}
+
+/* Own grid, not .project-grid: auto-fill spreads two cards across a wide
+   screen and leaves them hanging on the left. auto-fit collapses the empty
+   tracks so the pair stays centred. */
+.term-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+.term-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  padding: 24px;
+}
+
+.term-card-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.term-card-head h3 {
+  margin: 0;
+  font-family: var(--display);
+  font-size: var(--fs-500);
+}
+
+.term-card p {
+  margin: 0;
+  color: var(--ink-soft);
+  flex: 1;
+}
+
+@media (max-width: 700px) {
+  .term-picker {
+    min-height: auto;
+    padding: 64px 20px;
+  }
+}

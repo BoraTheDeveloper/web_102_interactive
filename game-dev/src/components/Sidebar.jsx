@@ -1,6 +1,9 @@
-// Section-based sidebar. The Intro Python site is organized by role, not by
-// week, so the sidebar groups pages under labeled sections.
-export default function Sidebar({ nav, activeSlug, onSelect }) {
+import { isUnlocked, msUntil, formatCountdown, formatUnlockLocal } from '../lib/gate.js'
+
+// Section-based sidebar. Pages are grouped by role, not by week number.
+// A gated page that has not opened yet is disabled and shows a live countdown,
+// matching the web-dev site's --soon pattern.
+export default function Sidebar({ nav, activeSlug, onSelect, now }) {
   return (
     <aside className="sidebar" aria-label="Course sections">
       <p className="rail-label">Review</p>
@@ -10,14 +13,26 @@ export default function Sidebar({ nav, activeSlug, onSelect }) {
             <p className="nav-group-label">{group.section}</p>
             {group.pages.map((page) => {
               const active = page.slug === activeSlug
+              const locked = !isUnlocked(page, now)
+              const cls =
+                'week-link' +
+                (active ? ' week-link--active' : '') +
+                (locked ? ' week-link--soon' : '')
               return (
                 <button
                   key={page.slug}
-                  className={'week-link' + (active ? ' week-link--active' : '')}
-                  onClick={() => onSelect(page.slug)}
+                  className={cls}
+                  onClick={() => !locked && onSelect(page.slug)}
+                  disabled={locked}
+                  title={locked ? `Opens ${formatUnlockLocal(page.unlocksAt)}` : undefined}
                   aria-current={active ? 'page' : undefined}
                 >
                   <span className="week-name">{page.title}</span>
+                  {locked && (
+                    <span className="week-state week-state--soon">
+                      {formatCountdown(msUntil(page, now), { short: true })}
+                    </span>
+                  )}
                 </button>
               )
             })}

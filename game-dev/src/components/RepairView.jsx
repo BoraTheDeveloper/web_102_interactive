@@ -4,16 +4,17 @@ import Trace from './Trace.jsx'
 import RepairChecklist from './RepairChecklist.jsx'
 import RichText from './RichText.jsx'
 
-// Renders a Space Shooter repair page: symptom -> likely cause -> where to
-// check -> debug trace -> fix checklist -> (optional) fixed code.
-export default function RepairView({ repair }) {
+// Renders a repair page: symptom -> likely cause -> where to check -> debug
+// trace -> fix checklist -> (optional) fixed code. The kicker and the storage
+// key come from the term, so this component doesn't decide where state lives.
+export default function RepairView({ repair, kicker, storageKey }) {
   let num = 1
   const n = () => String(num++).padStart(2, '0')
 
   return (
     <article className="week">
       <header className="week-header">
-        <div className="week-kicker">● Space Shooter Repair Center</div>
+        <div className="week-kicker">● {kicker}</div>
         <h1 className="week-title">{repair.title}</h1>
       </header>
 
@@ -45,7 +46,7 @@ export default function RepairView({ repair }) {
       )}
 
       <Section id="fix" number={n()} title="Fix checklist">
-        <RepairChecklist storageKey={`gd-repair-${repair.slug}`} title={repair.title} items={repair.checklist} />
+        <RepairChecklist storageKey={storageKey} title={repair.title} items={repair.checklist} />
       </Section>
 
       {repair.fixCode && (
