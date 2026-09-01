@@ -3,6 +3,7 @@
 // the delta-time demo early is learning, not skipping ahead.
 
 import weeks from './weeks/index.js'
+import homework from './homework/index.js'
 import { UNLOCKS_AT } from './schedule.js'
 
 import gameLoop from './concepts/game-loop.js'
@@ -56,8 +57,20 @@ const weekPages = weeks.map((w) => {
   return page(w.slug, w.title, 'week', w, UNLOCKS_AT[w.slug])
 })
 
+// A chunk names the week that sets it and the week its rescue file opens,
+// rather than carrying two timestamps of its own. A cancelled class then moves
+// one line in schedule.js and the homework follows it.
+const homeworkPages = homework.map((c) => {
+  if (DEV && (!UNLOCKS_AT[c.setAfter] || !UNLOCKS_AT[c.rescueAfter])) {
+    console.warn(`[t3] homework "${c.slug}" names a week with no unlocksAt entry.`)
+  }
+  const data = { ...c, rescueUnlocksAt: UNLOCKS_AT[c.rescueAfter] }
+  return page(c.slug, c.title, 'homework', data, UNLOCKS_AT[c.setAfter])
+})
+
 const NAV = [
   { section: 'Review by Week', pages: weekPages },
+  { section: 'Pong Homework', pages: homeworkPages },
   { section: 'Visual Concepts', pages: concepts.map((c) => page(c.slug, c.title, 'concept', c)) },
   { section: 'Repair Center', pages: repairs.map((r) => page(r.slug, r.title, 'repair', r)) },
 ]

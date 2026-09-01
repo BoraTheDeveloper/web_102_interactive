@@ -10,6 +10,7 @@ import RepairView from './RepairView.jsx'
 import ProjectBuilderView from './ProjectBuilderView.jsx'
 import ProjectCards from './ProjectCards.jsx'
 import WeekView from './WeekView.jsx'
+import HomeworkView from './HomeworkView.jsx'
 
 function Topbar({ term, exploredCount, totalPages }) {
   const pct = totalPages ? `${Math.round((exploredCount / totalPages) * 100)}%` : '0%'
@@ -49,7 +50,7 @@ function LockedNotice({ page, now }) {
       <div className="goal-card">
         <div className="goal-label">Opens {formatUnlockLocal(page.unlocksAt)}</div>
         <p>
-          This week opens after we have covered it in class. Come back in{' '}
+          This page opens after the class it follows. Come back in{' '}
           <strong>{formatCountdown(msUntil(page, now))}</strong>.
         </p>
       </div>
@@ -139,6 +140,16 @@ export default function TermShell({ term, slug }) {
         return <ProjectBuilderView builder={page.data} kicker={term.kickers.project} />
       case 'projects':
         return <ProjectCards projects={page.data} />
+      case 'homework':
+        return (
+          <HomeworkView
+            chunk={page.data}
+            kicker={term.kickers.homework}
+            storageKey={nsKey(term.id, `homework:${page.data.slug}`)}
+            now={now}
+            onNavigate={select}
+          />
+        )
       case 'week':
         return <WeekView week={page.data} onNavigate={select} />
       default:

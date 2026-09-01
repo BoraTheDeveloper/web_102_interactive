@@ -2075,3 +2075,33 @@ pre {
   font-size: var(--fs-300);
   line-height: 1.6;
 }
+
+/* ---------- Homework ---------- */
+
+/* Terminal output and prose, not source. Same block, no syntax colouring. */
+.code-block--plain code,
+.code-block--plain {
+  color: var(--code-ink);
+  white-space: pre-wrap;
+}
+
+/* The rescue file, before the week it is handed out in class. */
+.rescue-locked {
+  padding: 24px 32px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--line-strong);
+  border-radius: var(--radius);
+}
+
+.rescue-locked p {
+  margin: 12px 0 0;
+  max-width: var(--measure);
+  color: var(--ink-soft);
+  line-height: 1.55;
+}
+
+.rescue-countdown {
+  font-family: var(--mono);
+  font-size: var(--fs-300);
+}
