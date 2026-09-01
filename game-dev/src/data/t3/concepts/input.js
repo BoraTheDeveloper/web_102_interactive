@@ -12,7 +12,7 @@ const input = {
     kind: 'input',
     config: {
       caption:
-        'Click the canvas first. Left: each Space press counts once, however long you hold it. Right: the square keeps moving the whole time you hold the Right arrow. That is the difference between an event and key state.',
+        'Click the canvas first. Left: each Space press counts once, however long you hold it. Right: hold the left or right arrow and the square moves every frame until you let go. Hold both and direction goes back to 0, because the two checks cancel.',
     },
   },
 

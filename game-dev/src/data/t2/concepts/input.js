@@ -13,7 +13,7 @@ const input = {
     kind: 'input',
     config: {
       caption:
-        'Click the canvas first. Left: KEYDOWN fires once per Space press (right for shooting). Right: get_pressed() stays True while you hold Right (right for smooth movement).',
+        'Click the canvas first. Left: KEYDOWN fires once per Space press, however long you hold it (right for shooting). Right: get_pressed() stays True the whole time you hold the left or right arrow (right for smooth movement).',
     },
   },
 

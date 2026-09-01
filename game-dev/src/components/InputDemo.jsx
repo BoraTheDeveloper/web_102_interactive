@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from 'react'
+import { useRef, useEffect } from 'react'
 import { clear, drawRect, drawText } from '../lib/canvas.js'
 
 // Compare event-based input (KEYDOWN fires once per press) with continuous
@@ -8,9 +8,14 @@ export default function InputDemo({ config }) {
   const W = 480
   const H = 300
   const pressesRef = useRef(0)
-  const heldRef = useRef(false)
-  const pxRef = useRef(40)
-  const [, force] = useState(0)
+  // Both arrows, tracked independently. Holding both at once cancels out,
+  // which is the same thing that happens in Pygame when two opposite
+  // get_pressed() checks both add to x.
+  const heldRef = useRef({ left: false, right: false })
+  // The square lives in the right half of the canvas, beside its own label.
+  const MIN_X = W / 2 + 14
+  const MAX_X = W - 14 - 44
+  const pxRef = useRef(Math.round((MIN_X + MAX_X) / 2))
 
   useEffect(() => {
     function onKeyDown(e) {
@@ -22,13 +27,14 @@ export default function InputDemo({ config }) {
         // pygame.key.set_repeat(), so ignore the repeats and match Pygame.
         if (!e.repeat) pressesRef.current += 1
       }
-      if (e.key === 'ArrowRight') {
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
         e.preventDefault()
-        heldRef.current = true
+        heldRef.current[e.key === 'ArrowLeft' ? 'left' : 'right'] = true
       }
     }
     function onKeyUp(e) {
-      if (e.key === 'ArrowRight') heldRef.current = false
+      if (e.key === 'ArrowLeft') heldRef.current.left = false
+      if (e.key === 'ArrowRight') heldRef.current.right = false
     }
     window.addEventListener('keydown', onKeyDown)
     window.addEventListener('keyup', onKeyUp)
@@ -41,10 +47,10 @@ export default function InputDemo({ config }) {
   useEffect(() => {
     let raf
     function loop() {
-      if (heldRef.current) pxRef.current = Math.min(W - 70, pxRef.current + 3)
-      if (!heldRef.current && pxRef.current > 40) {
-        // ease back when released so the difference stays visible
-      }
+      // int(right) - int(left) is exactly the shape W3 teaches: two
+      // independent checks, both allowed to be true at the same time.
+      const dir = (heldRef.current.right ? 1 : 0) - (heldRef.current.left ? 1 : 0)
+      pxRef.current = Math.max(MIN_X, Math.min(MAX_X, pxRef.current + dir * 3))
       const ctx = canvasRef.current.getContext('2d')
       clear(ctx, W, H, '#171a24')
       ctx.fillStyle = 'rgba(255,255,255,0.12)'
@@ -56,11 +62,11 @@ export default function InputDemo({ config }) {
       drawText(ctx, 'fires once per press (good for shooting)', 14, 124, '#6b7280', '11px JetBrains Mono')
 
       drawText(ctx, 'Key state: get_pressed()', W / 2 + 14, 28, '#9aa0ad', 'bold 13px JetBrains Mono')
-      drawText(ctx, 'Hold the → arrow', W / 2 + 14, 50, '#6b7280', '11px JetBrains Mono')
+      drawText(ctx, 'Hold ← or →', W / 2 + 14, 50, '#6b7280', '11px JetBrains Mono')
+      drawText(ctx, `direction = ${dir}`, W / 2 + 14, 96, '#7cf6a0', 'bold 20px JetBrains Mono')
       drawRect(ctx, pxRef.current, 200, 44, 44, '#4f46e5')
       drawText(ctx, 'moves every frame while held', W / 2 + 14, 276, '#6b7280', '11px JetBrains Mono')
 
-      force((n) => (n + 1) % 1000000)
       raf = requestAnimationFrame(loop)
     }
     raf = requestAnimationFrame(loop)
@@ -72,7 +78,7 @@ export default function InputDemo({ config }) {
       <canvas ref={canvasRef} width={W} height={H} className="trace-canvas" tabIndex={0} />
       <p className="demo-caption">
         {config?.caption ||
-          'Click the canvas first. Left: KEYDOWN fires once per press, so it is right for shooting a laser. Right: get_pressed() is True the whole time you hold the key, so it is right for smooth movement.'}
+          'Click the canvas first. Left: KEYDOWN fires once per press, so it is right for shooting. Right: get_pressed() is True the whole time you hold an arrow, so it is right for smooth movement.'}
       </p>
     </div>
   )
