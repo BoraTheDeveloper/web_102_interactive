@@ -2,7 +2,11 @@ import { useRef, useState, useEffect } from 'react'
 import { clear, drawRect, strokeRect, drawText } from '../lib/canvas.js'
 
 // Two draggable rects; live readout of rect.colliderect() -> True/False.
+// The two rect names come from config.labels, because the same demo teaches
+// player vs meteor in one term and player vs coin in another.
 export default function RectVisualizer({ config }) {
+  const nameA = config?.labels?.a || 'player_rect'
+  const nameB = config?.labels?.b || 'meteor_rect'
   const canvasRef = useRef(null)
   const W = 480
   const H = 300
@@ -20,17 +24,17 @@ export default function RectVisualizer({ config }) {
     strokeRect(ctx, a.x, a.y, a.w, a.h, '#4f46e5', 2)
     drawRect(ctx, b.x, b.y, b.w, b.h, 'rgba(22,184,166,0.4)')
     strokeRect(ctx, b.x, b.y, b.w, b.h, '#16b8a6', 2)
-    drawText(ctx, 'player_rect', a.x, a.y - 6, '#9aa0ad', '11px JetBrains Mono')
-    drawText(ctx, 'meteor_rect', b.x, b.y - 6, '#9aa0ad', '11px JetBrains Mono')
+    drawText(ctx, nameA, a.x, a.y - 6, '#9aa0ad', '11px JetBrains Mono')
+    drawText(ctx, nameB, b.x, b.y - 6, '#9aa0ad', '11px JetBrains Mono')
     drawText(
       ctx,
-      `player_rect.colliderect(meteor_rect)  ->  ${overlap ? 'True' : 'False'}`,
+      `${nameA}.colliderect(${nameB})  ->  ${overlap ? 'True' : 'False'}`,
       10,
       H - 12,
       overlap ? '#7cf6a0' : '#ff8b8b',
       'bold 14px JetBrains Mono',
     )
-  }, [a, b, overlap])
+  }, [a, b, overlap, nameA, nameB])
 
   function ptr(e) {
     const rect = canvasRef.current.getBoundingClientRect()

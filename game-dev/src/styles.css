@@ -947,6 +947,28 @@ pre {
   border-left-color: var(--fail);
 }
 
+/* Snippets belong to a single question, so they sit between the prompt and
+   the options rather than in a sticky side column. */
+.quiz-q .code-block {
+  margin: 0 0 16px;
+}
+
+.quiz-trap {
+  margin-left: 10px;
+  vertical-align: middle;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+
+.quiz-score {
+  margin: 24px 0 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+  color: var(--ink-soft);
+  font-family: var(--mono);
+  font-size: var(--fs-300);
+}
+
 /* ---------- Feynman ---------- */
 .feynman {
   display: flex;
@@ -2037,4 +2059,16 @@ pre {
     min-height: auto;
     padding: 64px 20px;
   }
+}
+
+/* Repair pages: the end state, stated before the checklist. */
+.repair-working {
+  margin: 0 0 20px;
+  padding: 14px 16px;
+  background: var(--accent-soft);
+  border: 1px solid var(--accent-line);
+  border-radius: 10px;
+  color: var(--ink);
+  font-size: var(--fs-300);
+  line-height: 1.6;
 }

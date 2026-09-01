@@ -2,6 +2,8 @@
 // Source: game_dev/docs/2026_t3/slides/W5 - Classes Blueprint for Game Objects.md (section E).
 // Plain classes only. Sprites are Week 6.
 
+import quiz from '../quizzes/w5.js'
+
 const w5 = {
   slug: 'w5',
   title: 'Week 5 · Classes: Blueprint for Game Objects',
@@ -110,6 +112,7 @@ pygame.quit()`,
     { slug: 'repair-missing-self', label: 'AttributeError on a line that looks fine' },
     { slug: 'repair-player-too-fast', label: 'My player is too fast or too slow' },
   ],
+  quiz,
   takeaways: [
     'You can explain the difference between a blueprint and a stamped copy',
     'You can write a class with `__init__`, `self.` attributes and methods',

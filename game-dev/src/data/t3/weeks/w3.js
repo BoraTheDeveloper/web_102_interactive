@@ -2,6 +2,8 @@
 // Source: game_dev/docs/2026_t3/slides/W3 - Handling User Input.md
 // (section E, "Simpler version (no color change)").
 
+import quiz from '../quizzes/w3.js'
+
 const w3 = {
   slug: 'w3',
   title: 'Week 3 · Handling User Input',
@@ -81,6 +83,7 @@ pygame.quit()`,
     { slug: 'repair-moves-once-then-freezes', label: 'My player moves once then freezes' },
     { slug: 'repair-player-no-move', label: 'My player will not move' },
   ],
+  quiz,
   takeaways: [
     'You can replace hard coded draw positions with variables and get motion',
     'You can read held keys every frame and move in four directions',

@@ -104,8 +104,13 @@ export default function TermShell({ term, slug }) {
     setExplored((prev) => (prev.has(page.slug) ? prev : new Set(prev).add(page.slug)))
   }, [pageOpen, page && page.slug])
 
-  const total = unlocked.length
-  const count = unlocked.filter((p) => explored.has(p.slug)).length
+  // The denominator is every page in the term, not just the unlocked ones.
+  // Counting only what is open reads "4 / 4 explored" with a full bar in week
+  // four of twelve, which tells a student they are finished when they are a
+  // third of the way in. The trade is that the bar cannot reach 100% until the
+  // last week unlocks. Swap `pages` for `unlocked` here to go back.
+  const total = pages.length
+  const count = pages.filter((p) => explored.has(p.slug)).length
 
   function select(next) {
     const target = findPage(term, next)

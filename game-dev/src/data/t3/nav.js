@@ -1,10 +1,50 @@
+// The Term 3 course menu. Weeks carry an unlocksAt and open the Sunday their
+// class is taught. Concepts and repairs are never gated: a student poking at
+// the delta-time demo early is learning, not skipping ahead.
+
 import weeks from './weeks/index.js'
 import { UNLOCKS_AT } from './schedule.js'
+
+import gameLoop from './concepts/game-loop.js'
+import coordinates from './concepts/coordinates.js'
+import drawOrder from './concepts/draw-order.js'
+import input from './concepts/input.js'
+import rectCollision from './concepts/rect-collision.js'
+import classes from './concepts/classes.js'
+import deltaTime from './concepts/delta-time.js'
+
+import windowOpensCloses from './repairs/window-opens-closes.js'
+import blackWindow from './repairs/black-window.js'
+import nothingDraws from './repairs/nothing-draws.js'
+import movesOnceThenFreezes from './repairs/moves-once-then-freezes.js'
+import playerNoMove from './repairs/player-no-move.js'
+import scoreResets from './repairs/score-resets.js'
+import collisionFails from './repairs/collision-fails.js'
+import itemSpawnsOffScreen from './repairs/item-spawns-off-screen.js'
+import missingSelf from './repairs/missing-self.js'
+import playerTooFast from './repairs/player-too-fast.js'
 
 // Vite statically replaces import.meta.env.DEV at build time. The typeof guard
 // keeps this module importable from plain node, so the data layer can be
 // checked without a browser.
 const DEV = typeof import.meta.env !== 'undefined' && import.meta.env.DEV
+
+// Concepts in teaching order, so the sidebar reads like the term.
+const concepts = [gameLoop, coordinates, drawOrder, input, rectCollision, classes, deltaTime]
+
+// Repairs in the order the bugs first bite, which is also roughly week order.
+const repairs = [
+  windowOpensCloses,
+  blackWindow,
+  nothingDraws,
+  movesOnceThenFreezes,
+  playerNoMove,
+  scoreResets,
+  collisionFails,
+  itemSpawnsOffScreen,
+  missingSelf,
+  playerTooFast,
+]
 
 const page = (slug, title, kind, data, unlocksAt) => ({ slug, title, kind, data, unlocksAt })
 
@@ -16,7 +56,11 @@ const weekPages = weeks.map((w) => {
   return page(w.slug, w.title, 'week', w, UNLOCKS_AT[w.slug])
 })
 
-const NAV = [{ section: 'Review by Week', pages: weekPages }]
+const NAV = [
+  { section: 'Review by Week', pages: weekPages },
+  { section: 'Visual Concepts', pages: concepts.map((c) => page(c.slug, c.title, 'concept', c)) },
+  { section: 'Repair Center', pages: repairs.map((r) => page(r.slug, r.title, 'repair', r)) },
+]
 
 // Weeks link out to concept and repair pages that are authored later in the
 // term. WeekView renders a "Go deeper" button for every entry in `related`
@@ -27,7 +71,12 @@ const known = new Set(NAV.flatMap((g) => g.pages).map((p) => p.slug))
 for (const group of NAV) {
   for (const p of group.pages) {
     if (!p.data.related) continue
-    p.data = { ...p.data, related: p.data.related.filter((r) => known.has(r.slug)) }
+    const kept = p.data.related.filter((r) => known.has(r.slug))
+    if (DEV && kept.length !== p.data.related.length) {
+      const missing = p.data.related.filter((r) => !known.has(r.slug)).map((r) => r.slug)
+      console.warn(`[t3] "${p.slug}" links to pages that do not exist yet: ${missing.join(', ')}`)
+    }
+    p.data = { ...p.data, related: kept }
   }
 }
 

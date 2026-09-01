@@ -9,7 +9,8 @@ import { clear, drawRect, drawCircle, drawText } from '../lib/canvas.js'
 // config shape:
 //   code: string
 //   state: initial state object
-//   sceneKind?: 'spaceShooter'        // built-in scene renderer
+//   sceneKind?: 'spaceShooter' | 'collector' | 'platformer' | 'pong'
+//                                     // built-in scene renderer
 //   render?: (ctx, state, w, h) => void  // custom canvas renderer (else none)
 //   inspector: (state) => [{ label, value }]
 //   steps: [{ lines:[n], label, desc, frame?, delta?:(s)=>({key:{from,to}}), apply?:(s)=>newState }]
@@ -69,6 +70,84 @@ function drawSpaceShooter(ctx, s, w, h) {
   drawText(ctx, `frame ${s.frame ?? 0}`, 10, 20, 'rgba(255,255,255,0.6)')
 }
 
+// T3's three games are all 800x600 and the trace canvas is 480x300, so every
+// T3 scene letterboxes through one scale factor. Rects in a scene's state are
+// therefore written in real game coordinates: `{ x: 380, y: 280, width: 40,
+// height: 40 }` is the same FRect the student typed in class.
+const GAME_W = 800
+const GAME_H = 600
+
+function fitScene(w, h) {
+  const k = Math.min(w / GAME_W, h / GAME_H)
+  return { k, ox: (w - GAME_W * k) / 2, oy: (h - GAME_H * k) / 2 }
+}
+
+function box(ctx, f, r, color) {
+  if (!r) return
+  drawRect(ctx, f.ox + r.x * f.k, f.oy + r.y * f.k, r.width * f.k, r.height * f.k, color)
+}
+
+function stage(ctx, w, h, bg) {
+  clear(ctx, w, h, '#12141c')
+  const f = fitScene(w, h)
+  drawRect(ctx, f.ox, f.oy, GAME_W * f.k, GAME_H * f.k, bg)
+  return f
+}
+
+// Collector (class weeks 4-7): dodgerblue player, gold coin, score top left.
+// Colours match the strings in the deck so the canvas and the code agree.
+function drawCollector(ctx, s, w, h) {
+  const f = stage(ctx, w, h, '#191970') // midnightblue
+  const items = s.items || (s.item ? [s.item] : [])
+  items.forEach((it) => box(ctx, f, it, '#ffd700')) // gold
+  box(ctx, f, s.player, '#1e90ff') // dodgerblue
+  drawText(ctx, `Score: ${s.score ?? 0}`, f.ox + 14, f.oy + 30, '#ffffff', 'bold 16px JetBrains Mono, monospace')
+  if (s.frame != null) drawText(ctx, `frame ${s.frame}`, 8, h - 8, 'rgba(255,255,255,0.55)')
+}
+
+// Platformer (class weeks 8-9). direction.y and on_floor are drawn on the
+// scene because the whole lesson is that one of them accumulates and the
+// other gates the jump.
+function drawPlatformer(ctx, s, w, h) {
+  const f = stage(ctx, w, h, '#87ceeb') // skyblue
+  ;(s.platforms || []).forEach((p) => box(ctx, f, p, '#3f3f46'))
+  box(ctx, f, s.goal, '#32cd32') // limegreen
+  box(ctx, f, s.player, '#ff6347') // tomato
+  const font = 'bold 15px JetBrains Mono, monospace'
+  if (s.direction) {
+    drawText(ctx, `direction.y = ${s.direction.y}`, f.ox + 14, f.oy + 28, '#12141c', font)
+  }
+  if (s.on_floor != null) {
+    drawText(ctx, `on_floor = ${s.on_floor ? 'True' : 'False'}`, f.ox + 14, f.oy + 50, '#12141c', font)
+  }
+  if (s.frame != null) drawText(ctx, `frame ${s.frame}`, 8, h - 8, 'rgba(255,255,255,0.55)')
+}
+
+// Pong (homework chunks 1-5): two white paddles, a white ball, one score.
+function drawPong(ctx, s, w, h) {
+  const f = stage(ctx, w, h, '#000000')
+  ctx.strokeStyle = 'rgba(255,255,255,0.25)'
+  ctx.lineWidth = 1
+  ctx.setLineDash([6, 6])
+  ctx.beginPath()
+  ctx.moveTo(f.ox + (GAME_W / 2) * f.k, f.oy)
+  ctx.lineTo(f.ox + (GAME_W / 2) * f.k, f.oy + GAME_H * f.k)
+  ctx.stroke()
+  ctx.setLineDash([])
+  ;(s.paddles || []).forEach((p) => box(ctx, f, p, '#ffffff'))
+  box(ctx, f, s.ball, '#ffffff')
+  drawText(ctx, String(s.score ?? 0), f.ox + (GAME_W / 2 - 10) * f.k, f.oy + 34, '#ffffff', 'bold 18px JetBrains Mono, monospace')
+  if (s.state) drawText(ctx, s.state, f.ox + 14, f.oy + 26, 'rgba(255,255,255,0.7)')
+  if (s.frame != null) drawText(ctx, `frame ${s.frame}`, 8, h - 8, 'rgba(255,255,255,0.55)')
+}
+
+const SCENES = {
+  spaceShooter: drawSpaceShooter,
+  collector: drawCollector,
+  platformer: drawPlatformer,
+  pong: drawPong,
+}
+
 export default function Trace({ config }) {
   const steps = config.steps
   const [state, setState] = useState(config.state)
@@ -89,11 +168,11 @@ export default function Trace({ config }) {
       return
     }
     const next = steps[step]
-    if (next.delta) setDelta((prev) => ({ ...(prev || {}), ...next.delta(state) }))
-    if (next.apply) {
-      setState(next.apply(state))
-      setDelta(null)
-    }
+    // The delta is what this step changed, so it is set fresh each step and
+    // cleared by the next one. Setting it before apply and clearing it after
+    // meant a step carrying both showed no highlight at all.
+    setDelta(next.delta ? next.delta(state) : null)
+    if (next.apply) setState(next.apply(state))
     setStep(step + 1)
   }
 
@@ -125,8 +204,9 @@ export default function Trace({ config }) {
     const canvas = canvasRef.current
     if (!canvas) return
     const ctx = canvas.getContext('2d')
-    if (config.sceneKind === 'spaceShooter') {
-      drawSpaceShooter(ctx, state, SCENE_W, SCENE_H)
+    const scene = SCENES[config.sceneKind]
+    if (scene) {
+      scene(ctx, state, SCENE_W, SCENE_H)
     } else if (config.render) {
       config.render(ctx, state, SCENE_W, SCENE_H)
     }

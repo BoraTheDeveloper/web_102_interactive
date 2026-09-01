@@ -7,6 +7,10 @@ import RichText from './RichText.jsx'
 // Renders a repair page: symptom -> likely cause -> where to check -> debug
 // trace -> fix checklist -> (optional) fixed code. The kicker and the storage
 // key come from the term, so this component doesn't decide where state lives.
+//
+// `game` and `workingMeans` are optional and T3 only. One root cause can show
+// up in more than one game, so the page is tagged rather than split, and
+// "Working means:" is the phrase students already know from every handout.
 export default function RepairView({ repair, kicker, storageKey }) {
   let num = 1
   const n = () => String(num++).padStart(2, '0')
@@ -16,6 +20,7 @@ export default function RepairView({ repair, kicker, storageKey }) {
       <header className="week-header">
         <div className="week-kicker">● {kicker}</div>
         <h1 className="week-title">{repair.title}</h1>
+        {repair.game && <p className="week-subtitle">Shows up in: {repair.game}</p>}
       </header>
 
       <div className="goal-card">
@@ -46,6 +51,11 @@ export default function RepairView({ repair, kicker, storageKey }) {
       )}
 
       <Section id="fix" number={n()} title="Fix checklist">
+        {repair.workingMeans && (
+          <p className="repair-working">
+            <strong>Working means:</strong> <RichText>{repair.workingMeans}</RichText>
+          </p>
+        )}
         <RepairChecklist storageKey={storageKey} title={repair.title} items={repair.checklist} />
       </Section>
 

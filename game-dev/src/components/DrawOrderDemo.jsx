@@ -4,6 +4,10 @@ import { clear, drawRect, strokeRect, drawText } from '../lib/canvas.js'
 // Three overlapping sprites. The user reorders the draw list with up/down
 // buttons. The canvas renders them in order — the last sprite drawn is on
 // top. Later blits cover earlier ones.
+//
+// The scene is config-driven: pass config.sprites as
+// { key: { color, stroke, label, w, h, x, y } } plus config.order to teach the
+// same rule with a different set of shapes.
 const SPRITES = {
   player: { color: 'rgba(79,70,229,0.7)', stroke: '#4f46e5', label: 'player', w: 100, h: 70 },
   meteor: { color: 'rgba(22,184,166,0.7)', stroke: '#16b8a6', label: 'meteor', w: 90, h: 90 },
@@ -17,23 +21,28 @@ const POSITIONS = {
 }
 
 export default function DrawOrderDemo({ config }) {
+  const sprites = config?.sprites || SPRITES
+  const positions = config?.sprites
+    ? Object.fromEntries(Object.entries(config.sprites).map(([k, v]) => [k, { x: v.x, y: v.y }]))
+    : POSITIONS
   const canvasRef = useRef(null)
   const W = 480
   const H = 300
-  const [order, setOrder] = useState(['player', 'meteor', 'laser'])
+  const [order, setOrder] = useState(config?.order || ['player', 'meteor', 'laser'])
 
   useEffect(() => {
     const ctx = canvasRef.current.getContext('2d')
-    clear(ctx, W, H, '#171a24')
+    clear(ctx, W, H, config?.bg || '#171a24')
     order.forEach((key, i) => {
-      const s = SPRITES[key]
-      const p = POSITIONS[key]
+      const s = sprites[key]
+      const p = positions[key]
       drawRect(ctx, p.x, p.y, s.w, s.h, s.color)
       strokeRect(ctx, p.x, p.y, s.w, s.h, s.stroke, 2)
       drawText(ctx, `${s.label}  (#${i + 1} drawn)`, p.x + 4, p.y + 16, s.stroke, 'bold 11px JetBrains Mono')
     })
     drawText(ctx, 'Last drawn = on top', 10, H - 12, '#9aa0ad', '12px JetBrains Mono')
-  }, [order])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [order, config])
 
   function move(index, dir) {
     const newIndex = index + dir
@@ -51,8 +60,8 @@ export default function DrawOrderDemo({ config }) {
         {order.map((key, i) => (
           <div key={key} className="draw-order-row">
             <span className="draw-order-num">#{i + 1}</span>
-            <span className="draw-order-dot" style={{ background: SPRITES[key].stroke }} />
-            <span className="draw-order-label">{SPRITES[key].label}</span>
+            <span className="draw-order-dot" style={{ background: sprites[key].stroke }} />
+            <span className="draw-order-label">{sprites[key].label}</span>
             <button disabled={i === 0} onClick={() => move(i, -1)} className="draw-order-btn">↑</button>
             <button disabled={i === order.length - 1} onClick={() => move(i, 1)} className="draw-order-btn">↓</button>
           </div>

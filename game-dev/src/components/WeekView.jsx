@@ -1,9 +1,14 @@
 import Section from './Section.jsx'
 import CodeBlock from './CodeBlock.jsx'
 import RichText from './RichText.jsx'
+import QuizCheck from './QuizCheck.jsx'
 
 // Renders a "Review by Week" page: recap -> key concepts -> class code ->
-// links to deeper interactive pages -> takeaways.
+// quiz -> links to deeper interactive pages -> takeaways.
+//
+// Every section past the recap is optional. A week whose class has not run yet
+// carries only a title and a summary, and a planning week (T3 W10) has no code
+// at all, so nothing here may assume a field exists.
 export default function WeekView({ week, onNavigate }) {
   let secNum = 1
   const num = () => String(secNum++).padStart(2, '0')
@@ -23,22 +28,37 @@ export default function WeekView({ week, onNavigate }) {
         </p>
       </div>
 
-      <Section id="keypoints" number={num()} title="Key concepts" lead="The main ideas from this week.">
-        <div className="key-points">
-          {week.keyPoints.map((kp, i) => (
-            <div key={i} className="key-point">
-              <h3>{kp.heading}</h3>
-              <p>
-                <RichText>{kp.body}</RichText>
-              </p>
-            </div>
-          ))}
-        </div>
-      </Section>
+      {week.keyPoints && week.keyPoints.length > 0 && (
+        <Section id="keypoints" number={num()} title="Key concepts" lead="The main ideas from this week.">
+          <div className="key-points">
+            {week.keyPoints.map((kp, i) => (
+              <div key={i} className="key-point">
+                <h3>{kp.heading}</h3>
+                <p>
+                  <RichText>{kp.body}</RichText>
+                </p>
+              </div>
+            ))}
+          </div>
+        </Section>
+      )}
 
-      <Section id="code" number={num()} title="Class code" lead="The code we wrote together in class.">
-        <CodeBlock code={week.code} lang={week.codeLang || 'python'} />
-      </Section>
+      {week.code && (
+        <Section id="code" number={num()} title="Class code" lead="The code we wrote together in class.">
+          <CodeBlock code={week.code} lang={week.codeLang || 'python'} />
+        </Section>
+      )}
+
+      {week.quiz && (
+        <Section
+          id="quiz"
+          number={num()}
+          title="Check yourself"
+          lead="Same questions as the Kahoot next class. Answer before you scroll back up."
+        >
+          <QuizCheck quiz={week.quiz} />
+        </Section>
+      )}
 
       {week.related && week.related.length > 0 && (
         <Section id="related" number={num()} title="Go deeper" lead="Interactive pages that cover this week's concepts.">
@@ -53,15 +73,17 @@ export default function WeekView({ week, onNavigate }) {
         </Section>
       )}
 
-      <Section id="takeaways" number={num()} title="Takeaways" lead="What you should be able to do after this week.">
-        <ul className="takeaway-list">
-          {week.takeaways.map((t, i) => (
-            <li key={i}>
-              <RichText>{t}</RichText>
-            </li>
-          ))}
-        </ul>
-      </Section>
+      {week.takeaways && week.takeaways.length > 0 && (
+        <Section id="takeaways" number={num()} title="Takeaways" lead="What you should be able to do after this week.">
+          <ul className="takeaway-list">
+            {week.takeaways.map((t, i) => (
+              <li key={i}>
+                <RichText>{t}</RichText>
+              </li>
+            ))}
+          </ul>
+        </Section>
+      )}
     </article>
   )
 }

@@ -1,6 +1,8 @@
 // Review by Week 1: Introduction to Pygame.
 // Source: game_dev/docs/2026_t3/slides/W1 - Introduction to Pygame.md (section E).
 
+import quiz from '../quizzes/w1.js'
+
 const w1 = {
   slug: 'w1',
   title: 'Week 1 · Introduction to Pygame',
@@ -53,6 +55,7 @@ pygame.quit()`,
     { slug: 'repair-black-window', label: 'My window is black' },
     { slug: 'repair-window-opens-closes', label: 'My window opens then closes' },
   ],
+  quiz,
   takeaways: [
     'You can open a Pygame window and give it your own title',
     'You can keep a window alive with a game loop and close it cleanly on the X',

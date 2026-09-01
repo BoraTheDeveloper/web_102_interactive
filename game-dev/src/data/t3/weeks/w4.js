@@ -2,6 +2,8 @@
 // Source: game_dev/docs/2026_t3/slides/W4 - Game Mechanics and Logic.md (section E).
 // This is the first week of the Collector, and this file lives on through Week 7.
 
+import quiz from '../quizzes/w4.js'
+
 const w4 = {
   slug: 'w4',
   title: 'Week 4 · Game Mechanics and Logic',
@@ -89,6 +91,7 @@ pygame.quit()`,
     { slug: 'repair-collision-fails', label: 'My collision never fires' },
     { slug: 'repair-item-spawns-off-screen', label: 'My item spawns half off screen' },
   ],
+  quiz,
   takeaways: [
     'You can build a player and an item as `FRect`s and draw them',
     'You can move a rect and keep it on screen with `clamp_ip`',

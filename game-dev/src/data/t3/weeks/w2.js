@@ -1,6 +1,8 @@
 // Review by Week 2: Graphics in Pygame.
 // Source: game_dev/docs/2026_t3/slides/W2 - Graphics in Pygame.md (section E).
 
+import quiz from '../quizzes/w2.js'
+
 const w2 = {
   slug: 'w2',
   title: 'Week 2 · Graphics in Pygame',
@@ -68,6 +70,7 @@ pygame.quit()`,
     { slug: 'draw-order', label: 'Draw Order' },
     { slug: 'repair-nothing-draws', label: 'Nothing I draw shows up' },
   ],
+  quiz,
   takeaways: [
     'You can place a shape with `(x, y)` and know which way y grows',
     'You can explain and use the rule that the last shape drawn sits on top',
