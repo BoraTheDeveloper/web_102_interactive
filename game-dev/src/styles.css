@@ -294,8 +294,11 @@ pre {
   min-width: 0;
 }
 
+/* No measure cap here. --measure keeps a line of PROSE readable at about 68
+   characters, and a page title is not prose. Capping the header wrapped short
+   titles for no reason. .week-subtitle keeps its own cap, so the one line of
+   real prose in the header still reads at a sane width. */
 .week-header {
-  max-width: var(--measure);
   margin-bottom: 48px;
 }
 

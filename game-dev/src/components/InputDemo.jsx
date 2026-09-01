@@ -16,7 +16,11 @@ export default function InputDemo({ config }) {
     function onKeyDown(e) {
       if (e.key === ' ' || e.code === 'Space') {
         e.preventDefault()
-        pressesRef.current += 1
+        // The browser repeats keydown while a key is held, so a held Space
+        // would tick the counter over and over and teach the opposite of the
+        // lesson. Pygame's KEYDOWN does not repeat unless you ask for it with
+        // pygame.key.set_repeat(), so ignore the repeats and match Pygame.
+        if (!e.repeat) pressesRef.current += 1
       }
       if (e.key === 'ArrowRight') {
         e.preventDefault()
