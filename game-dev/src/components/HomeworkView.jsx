@@ -17,16 +17,26 @@ function Rescue({ chunk, now }) {
 
   if (!isUnlocked(gate, now)) {
     return (
-      <div className="rescue-locked">
-        <div className="goal-label">Opens {formatUnlockLocal(chunk.rescueUnlocksAt)}</div>
-        <p>
-          The finished file goes up at the start of next class, the same time it is handed
-          out in the room. Try it yourself first. If you are stuck, the checklist above
-          names the shape of every line you need.
-        </p>
-        <p className="rescue-countdown">
-          Opens in <strong>{formatCountdown(msUntil(gate, now))}</strong>.
-        </p>
+      <div className="rescue-gate">
+        {/* Blurred, not hidden, so the student can see a rescue exists and
+            roughly how long it is. aria-hidden keeps a screen reader from
+            simply reading the answer out, and user-select plus pointer-events
+            in the CSS stop select-all-and-copy. None of that survives
+            devtools, which is true of every client-side gate here. */}
+        <div className="rescue-gate-code" aria-hidden="true">
+          <CodeBlock code={chunk.rescueCode} lang="python" />
+        </div>
+        <div className="rescue-gate-veil">
+          <div className="goal-label">Opens {formatUnlockLocal(chunk.rescueUnlocksAt)}</div>
+          <p>
+            The finished file goes up at the start of next class, the same time it is
+            handed out in the room. Try it yourself first. The checklist above names the
+            shape of every line you need.
+          </p>
+          <p className="rescue-countdown">
+            Opens in <strong>{formatCountdown(msUntil(gate, now))}</strong>
+          </p>
+        </div>
       </div>
     )
   }
