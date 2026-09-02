@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from 'react'
-import { clear, drawRect, drawText } from '../lib/canvas.js'
+import { clear, drawRect, drawText, sharpCtx } from '../lib/canvas.js'
 
 // Two players: one moves without dt (speed depends on frame rate), one moves
 // with speed * dt (stable in real time). A slider changes the simulated FPS.
@@ -19,7 +19,7 @@ export default function DeltaTimeDemo({ config }) {
       if (xARef.current > W - 34) xARef.current = 20
       if (xBRef.current > W - 34) xBRef.current = 20
 
-      const ctx = canvasRef.current.getContext('2d')
+      const ctx = sharpCtx(canvasRef.current, W, H)
       clear(ctx, W, H, '#171a24')
       drawText(ctx, 'Without dt:  rect.x += speed', 12, 30, '#ff8b8b', 'bold 12px JetBrains Mono')
       drawRect(ctx, xARef.current, 48, 30, 30, '#b4341f')
@@ -34,25 +34,32 @@ export default function DeltaTimeDemo({ config }) {
 
   return (
     <div className="demo">
-      <canvas ref={canvasRef} width={W} height={H} className="trace-canvas" />
-      <div className="demo-controls">
-        <label htmlFor="fps-slider">
-          Simulated frame rate: <strong>{fps} FPS</strong>
-        </label>
-        <input
-          id="fps-slider"
-          type="range"
-          min={30}
-          max={120}
-          step={30}
-          value={fps}
-          onChange={(e) => setFps(Number(e.target.value))}
-        />
+      <div className="demo-row">
+        <canvas ref={canvasRef} width={W} height={H} className="trace-canvas" />
+        <div className="demo-controls">
+          <div className="demo-slider">
+            <label htmlFor="fps-slider">
+              Simulated frame rate: <strong>{fps} FPS</strong>
+            </label>
+            <input
+              id="fps-slider"
+              type="range"
+              min={30}
+              max={120}
+              step={30}
+              value={fps}
+              onChange={(e) => setFps(Number(e.target.value))}
+            />
+          </div>
+          <p className="demo-caption">
+            Drag it. 30 FPS is a laptop on battery. 120 FPS is a gaming monitor. Same code, same second.
+          </p>
+          <p className="demo-caption">
+            {config?.caption ||
+              'Change the frame rate. The red player (no dt) speeds up at high FPS and slows at low FPS. The green player (speed * dt) moves at the same real-world speed no matter the frame rate.'}
+          </p>
+        </div>
       </div>
-      <p className="demo-caption">
-        {config?.caption ||
-          'Change the frame rate. The red player (no dt) speeds up at high FPS and slows at low FPS. The green player (speed * dt) moves at the same real-world speed no matter the frame rate.'}
-      </p>
     </div>
   )
 }

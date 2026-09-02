@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from 'react'
-import { clear, drawRect, strokeRect, drawText } from '../lib/canvas.js'
+import { clear, drawRect, strokeRect, drawText, sharpCtx } from '../lib/canvas.js'
 
 // Three overlapping sprites. The user reorders the draw list with up/down
 // buttons. The canvas renders them in order — the last sprite drawn is on
@@ -28,19 +28,30 @@ export default function DrawOrderDemo({ config }) {
   const canvasRef = useRef(null)
   const W = 480
   const H = 300
+
+  // White text on a dark tag, so the label reads on every sprite colour. A tag
+  // drawn with its sprite is covered by whatever is drawn later, which is the
+  // lesson: the label disappears with the sprite it belongs to.
+  function tag(ctx, text, x, y) {
+    ctx.font = 'bold 11px JetBrains Mono, monospace'
+    const w = ctx.measureText(text).width + 12
+    drawRect(ctx, x, y, w, 20, 'rgba(18, 20, 28, 0.78)')
+    drawText(ctx, text, x + 6, y + 14, '#ffffff', 'bold 11px JetBrains Mono, monospace')
+  }
+
   const [order, setOrder] = useState(config?.order || ['player', 'meteor', 'laser'])
 
   useEffect(() => {
-    const ctx = canvasRef.current.getContext('2d')
+    const ctx = sharpCtx(canvasRef.current, W, H)
     clear(ctx, W, H, config?.bg || '#171a24')
     order.forEach((key, i) => {
       const s = sprites[key]
       const p = positions[key]
       drawRect(ctx, p.x, p.y, s.w, s.h, s.color)
       strokeRect(ctx, p.x, p.y, s.w, s.h, s.stroke, 2)
-      drawText(ctx, `${s.label}  (#${i + 1} drawn)`, p.x + 4, p.y + 16, s.stroke, 'bold 11px JetBrains Mono')
+      tag(ctx, `${s.label}  (#${i + 1} drawn)`, p.x + 6, p.y + 6)
     })
-    drawText(ctx, 'Last drawn = on top', 10, H - 12, '#9aa0ad', '12px JetBrains Mono')
+    tag(ctx, 'Last drawn = on top', 10, H - 30)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [order, config])
 
@@ -54,8 +65,9 @@ export default function DrawOrderDemo({ config }) {
 
   return (
     <div className="demo">
-      <canvas ref={canvasRef} width={W} height={H} className="trace-canvas" />
-      <div className="draw-order-list">
+      <div className="demo-row">
+        <canvas ref={canvasRef} width={W} height={H} className="trace-canvas" />
+        <div className="draw-order-list">
         <p className="draw-order-hint">Draw order (first = bottom, last = top):</p>
         {order.map((key, i) => (
           <div key={key} className="draw-order-row">
@@ -66,6 +78,7 @@ export default function DrawOrderDemo({ config }) {
             <button disabled={i === order.length - 1} onClick={() => move(i, 1)} className="draw-order-btn">↓</button>
           </div>
         ))}
+        </div>
       </div>
       <p className="demo-caption">
         {config?.caption ||
