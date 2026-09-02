@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from 'react'
-import { clear, drawGrid, drawRect, strokeRect, drawText } from '../lib/canvas.js'
+import { clear, drawGrid, drawRect, strokeRect, drawText, sharpCtx } from '../lib/canvas.js'
 
 // Drag a player square on a grid; watch x, y, and rect.center change.
 // Shows the Pygame coordinate system: origin top-left, y grows downward.
@@ -11,7 +11,7 @@ export default function CoordinatesDemo({ config }) {
   const [pos, setPos] = useState({ x: 196, y: 130 })
 
   useEffect(() => {
-    const ctx = canvasRef.current.getContext('2d')
+    const ctx = sharpCtx(canvasRef.current, W, H)
     clear(ctx, W, H, '#171a24')
     drawGrid(ctx, W, H, 40, 'rgba(255,255,255,0.07)')
     drawText(ctx, '(0, 0)', 6, 16, 'rgba(255,255,255,0.45)')

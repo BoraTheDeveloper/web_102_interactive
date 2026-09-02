@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from 'react'
-import { clear, drawRect, strokeRect, drawText } from '../lib/canvas.js'
+import { clear, drawRect, strokeRect, drawText, sharpCtx } from '../lib/canvas.js'
 
 // Two draggable rects; live readout of rect.colliderect() -> True/False.
 // The two rect names come from config.labels, because the same demo teaches
@@ -18,7 +18,7 @@ export default function RectVisualizer({ config }) {
     a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y
 
   useEffect(() => {
-    const ctx = canvasRef.current.getContext('2d')
+    const ctx = sharpCtx(canvasRef.current, W, H)
     clear(ctx, W, H, '#171a24')
     drawRect(ctx, a.x, a.y, a.w, a.h, 'rgba(79,70,229,0.45)')
     strokeRect(ctx, a.x, a.y, a.w, a.h, '#4f46e5', 2)

@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from 'react'
-import { clear, drawCircle, drawText } from '../lib/canvas.js'
+import { clear, drawCircle, drawText, sharpCtx } from '../lib/canvas.js'
 
 // A running mini game loop. Meteors spawn from the top at a regular interval
 // (adjustable with a slider) and fall down. Simulates
@@ -25,7 +25,7 @@ export default function TimerEventsDemo({ config }) {
 
     function frame(ts) {
       if (!mounted) return
-      const ctx = canvasRef.current.getContext('2d')
+      const ctx = sharpCtx(canvasRef.current, W, H)
       clear(ctx, W, H, '#171a24')
 
       // Spawn meteor on timer

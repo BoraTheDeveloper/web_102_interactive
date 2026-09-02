@@ -1,5 +1,5 @@
 import { useRef, useEffect } from 'react'
-import { clear, drawRect, drawText } from '../lib/canvas.js'
+import { clear, drawRect, drawText, sharpCtx } from '../lib/canvas.js'
 
 // Compare event-based input (KEYDOWN fires once per press) with continuous
 // key-state input (get_pressed is True the whole time a key is held).
@@ -51,7 +51,7 @@ export default function InputDemo({ config }) {
       // independent checks, both allowed to be true at the same time.
       const dir = (heldRef.current.right ? 1 : 0) - (heldRef.current.left ? 1 : 0)
       pxRef.current = Math.max(MIN_X, Math.min(MAX_X, pxRef.current + dir * 3))
-      const ctx = canvasRef.current.getContext('2d')
+      const ctx = sharpCtx(canvasRef.current, W, H)
       clear(ctx, W, H, '#171a24')
       ctx.fillStyle = 'rgba(255,255,255,0.12)'
       ctx.fillRect(W / 2 - 1, 0, 2, H)
@@ -59,7 +59,8 @@ export default function InputDemo({ config }) {
       drawText(ctx, 'Event: KEYDOWN', 14, 28, '#9aa0ad', 'bold 13px JetBrains Mono')
       drawText(ctx, 'Press Space a few times', 14, 50, '#6b7280', '11px JetBrains Mono')
       drawText(ctx, `count = ${pressesRef.current}`, 14, 96, '#7cf6a0', 'bold 30px JetBrains Mono')
-      drawText(ctx, 'fires once per press (good for shooting)', 14, 124, '#6b7280', '11px JetBrains Mono')
+      drawText(ctx, 'fires once per press', 14, 124, '#6b7280', '11px JetBrains Mono')
+      drawText(ctx, '(good for shooting)', 14, 142, '#6b7280', '11px JetBrains Mono')
 
       drawText(ctx, 'Key state: get_pressed()', W / 2 + 14, 28, '#9aa0ad', 'bold 13px JetBrains Mono')
       drawText(ctx, 'Hold ← or →', W / 2 + 14, 50, '#6b7280', '11px JetBrains Mono')

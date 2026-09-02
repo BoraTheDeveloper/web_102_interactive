@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from 'react'
-import { clear, drawRect, strokeRect, drawText } from '../lib/canvas.js'
+import { clear, drawRect, strokeRect, drawText, sharpCtx } from '../lib/canvas.js'
 
 // A running mini game loop with multiple lasers (moving up) and meteors
 // (falling down). When a laser overlaps a meteor, both are removed —
@@ -29,7 +29,7 @@ export default function CollisionGroupsDemo({ config }) {
 
     function frame(ts) {
       if (!mounted) return
-      const ctx = canvasRef.current.getContext('2d')
+      const ctx = sharpCtx(canvasRef.current, W, H)
       clear(ctx, W, H, '#171a24')
 
       const dt = lastFrameRef.current ? (ts - lastFrameRef.current) / 1000 : 0.016
