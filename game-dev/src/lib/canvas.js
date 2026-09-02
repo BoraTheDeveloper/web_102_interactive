@@ -13,6 +13,19 @@ export function fitCanvas(canvas) {
   return { ctx, w, h }
 }
 
+// Draw at twice the logical size so a 480x300 scene stays sharp when CSS
+// stretches the canvas across a wide page or a retina screen. Callers keep
+// drawing in logical W x H coordinates; the transform does the rest.
+export function sharpCtx(canvas, w, h, scale = 2) {
+  if (canvas.width !== w * scale || canvas.height !== h * scale) {
+    canvas.width = w * scale
+    canvas.height = h * scale
+  }
+  const ctx = canvas.getContext('2d')
+  ctx.setTransform(scale, 0, 0, scale, 0, 0)
+  return ctx
+}
+
 export function clear(ctx, w, h, color = '#171a24') {
   ctx.fillStyle = color
   ctx.fillRect(0, 0, w, h)
