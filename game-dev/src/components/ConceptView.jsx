@@ -9,6 +9,9 @@ import SpriteGroupDemo from './SpriteGroupDemo.jsx'
 import DrawOrderDemo from './DrawOrderDemo.jsx'
 import TimerEventsDemo from './TimerEventsDemo.jsx'
 import CollisionGroupsDemo from './CollisionGroupsDemo.jsx'
+import InheritanceDemo from './InheritanceDemo.jsx'
+import VectorDirectionDemo from './VectorDirectionDemo.jsx'
+import GravityJumpDemo from './GravityJumpDemo.jsx'
 import RichText from './RichText.jsx'
 
 function renderDemo(concept) {
@@ -16,7 +19,14 @@ function renderDemo(concept) {
   switch (kind) {
     case 'gameLoop':
     case 'classes':
+    case 'trace':
       return <Trace config={config} />
+    case 'inheritance':
+      return <InheritanceDemo config={config} />
+    case 'vectorDirection':
+      return <VectorDirectionDemo config={config} />
+    case 'gravityJump':
+      return <GravityJumpDemo config={config} />
     case 'coordinates':
       return <CoordinatesDemo config={config} />
     case 'rectCollision':

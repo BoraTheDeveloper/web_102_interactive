@@ -13,6 +13,10 @@ import input from './concepts/input.js'
 import rectCollision from './concepts/rect-collision.js'
 import classes from './concepts/classes.js'
 import deltaTime from './concepts/delta-time.js'
+import t3Inheritance from './concepts/t3-inheritance.js'
+import t3VectorDirection from './concepts/t3-vector-direction.js'
+import t3GameStates from './concepts/t3-game-states.js'
+import t3GravityJump from './concepts/t3-gravity-jump.js'
 
 import windowOpensCloses from './repairs/window-opens-closes.js'
 import blackWindow from './repairs/black-window.js'
@@ -31,7 +35,21 @@ import playerTooFast from './repairs/player-too-fast.js'
 const DEV = typeof import.meta.env !== 'undefined' && import.meta.env.DEV
 
 // Concepts in teaching order, so the sidebar reads like the term.
-const concepts = [gameLoop, coordinates, drawOrder, input, rectCollision, classes, deltaTime]
+// The t3- prefixed four are the ideas this term adds after week 5; weeks and
+// Pong chunks already link to them by these slugs.
+const concepts = [
+  gameLoop,
+  coordinates,
+  drawOrder,
+  input,
+  rectCollision,
+  classes,
+  deltaTime,
+  t3Inheritance,
+  t3VectorDirection,
+  t3GameStates,
+  t3GravityJump,
+]
 
 // Repairs in the order the bugs first bite, which is also roughly week order.
 const repairs = [
@@ -49,12 +67,16 @@ const repairs = [
 
 const page = (slug, title, kind, data, unlocksAt) => ({ slug, title, kind, data, unlocksAt })
 
+// A week opens on its own class date unless it names another week in
+// `unlocksWith`. W11 and W12 do: they are a work session and a demo day with no
+// deck, so their pages are read before class, and they open with W10.
 const weekPages = weeks.map((w) => {
+  const key = w.unlocksWith ?? w.slug
   // Fail open is the safe direction for a student, but it should not be silent.
-  if (DEV && !UNLOCKS_AT[w.slug]) {
-    console.warn(`[t3] week "${w.slug}" has no unlocksAt entry, so it renders unlocked.`)
+  if (DEV && !UNLOCKS_AT[key]) {
+    console.warn(`[t3] week "${w.slug}" has no unlocksAt entry for "${key}", so it renders unlocked.`)
   }
-  return page(w.slug, w.title, 'week', w, UNLOCKS_AT[w.slug])
+  return page(w.slug, w.title, 'week', w, UNLOCKS_AT[key])
 })
 
 // A chunk names the week that sets it and the week its rescue file opens,
