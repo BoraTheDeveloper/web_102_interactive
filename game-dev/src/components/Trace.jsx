@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { highlight } from '../lib/prism.js'
-import { clear, drawRect, drawCircle, drawText } from '../lib/canvas.js'
+import { clear, drawRect, drawCircle, drawText, sharpCtx } from '../lib/canvas.js'
 
 // Generic step trace for Game Dev. Source on the left with the active line
 // highlighted; on the right: an optional Canvas scene, a variable inspector,
@@ -101,7 +101,17 @@ function drawCollector(ctx, s, w, h) {
   const items = s.items || (s.item ? [s.item] : [])
   items.forEach((it) => box(ctx, f, it, '#ffd700')) // gold
   box(ctx, f, s.player, '#1e90ff') // dodgerblue
-  drawText(ctx, `Score: ${s.score ?? 0}`, f.ox + 14, f.oy + 30, '#ffffff', 'bold 16px JetBrains Mono, monospace')
+  const font = 'bold 16px JetBrains Mono, monospace'
+  // W7 onward: the room decides the text, the same way the three drawing
+  // branches do in the deck. No state means a pre-W7 Collector, score only.
+  if (s.state === 'start') {
+    drawText(ctx, 'SPACE to start', f.ox + 300 * f.k, f.oy + 300 * f.k, '#ffffff', font)
+  } else if (s.state === 'gameover') {
+    drawText(ctx, 'You collected 10!', f.ox + 280 * f.k, f.oy + 300 * f.k, '#ffffff', font)
+  } else {
+    drawText(ctx, `Score: ${s.score ?? 0}`, f.ox + 14, f.oy + 30, '#ffffff', font)
+  }
+  if (s.state) drawText(ctx, `state = "${s.state}"`, w - 150, 20, 'rgba(255,255,255,0.7)')
   if (s.frame != null) drawText(ctx, `frame ${s.frame}`, 8, h - 8, 'rgba(255,255,255,0.55)')
 }
 
@@ -155,6 +165,11 @@ export default function Trace({ config }) {
   const [delta, setDelta] = useState(null)
   const [auto, setAuto] = useState(false)
   const canvasRef = useRef(null)
+  const activeStepRef = useRef(null)
+
+  useEffect(() => {
+    activeStepRef.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+  }, [step])
 
   const atEnd = step >= steps.length
   const running = auto || (step > 0 && !atEnd)
@@ -203,7 +218,7 @@ export default function Trace({ config }) {
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
-    const ctx = canvas.getContext('2d')
+    const ctx = sharpCtx(canvas, SCENE_W, SCENE_H)
     const scene = SCENES[config.sceneKind]
     if (scene) {
       scene(ctx, state, SCENE_W, SCENE_H)
@@ -247,19 +262,6 @@ export default function Trace({ config }) {
             </div>
           </div>
 
-          <ol className="trace-steps">
-            {steps.map((s, i) => {
-              const status = i === step - 1 ? 'active' : i < step - 1 ? 'done' : 'pending'
-              return (
-                <li key={i} className={'trace-step trace-step--' + status}>
-                  {s.frame && <div className="trace-step-frame">{s.frame}</div>}
-                  <div className="trace-step-label">{s.label}</div>
-                  {status === 'active' && <p className="trace-step-desc">{s.desc}</p>}
-                </li>
-              )
-            })}
-          </ol>
-
           <div className="run-bar">
             <button className="btn btn--primary" onClick={advance} disabled={atEnd || auto}>
               Step ▶
@@ -271,6 +273,25 @@ export default function Trace({ config }) {
               Reset
             </button>
           </div>
+
+          {/* The list scrolls inside its own box so the canvas above it never
+              leaves the screen, and the active step scrolls itself into view. */}
+          <ol className="trace-steps">
+            {steps.map((s, i) => {
+              const status = i === step - 1 ? 'active' : i < step - 1 ? 'done' : 'pending'
+              return (
+                <li
+                  key={i}
+                  ref={status === 'active' ? activeStepRef : null}
+                  className={'trace-step trace-step--' + status}
+                >
+                  {s.frame && <div className="trace-step-frame">{s.frame}</div>}
+                  <div className="trace-step-label">{s.label}</div>
+                  {status === 'active' && <p className="trace-step-desc">{s.desc}</p>}
+                </li>
+              )
+            })}
+          </ol>
           <p className="trace-tip">
             Press <strong>Step ▶</strong> to walk one line at a time and watch the scene update.
           </p>
