@@ -6,6 +6,10 @@
 // never compute an offset from the student's timezone at runtime.
 //
 // If a class shifts or gets cancelled, edit the one line and push.
+//
+// These are class dates, not page dates. A week page can open with an earlier
+// week via `unlocksWith` in its data file (W11 and W12 open with W10). Keep the
+// true dates here so a shifted class still moves one line.
 
 export const UNLOCKS_AT = {
   w1: '2026-08-09T11:00:00Z',
