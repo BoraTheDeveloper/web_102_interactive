@@ -2,14 +2,18 @@ import Section from './Section.jsx'
 import CodeBlock from './CodeBlock.jsx'
 import RichText from './RichText.jsx'
 import QuizCheck from './QuizCheck.jsx'
+import RepairChecklist from './RepairChecklist.jsx'
 
-// Renders a "Review by Week" page: recap -> key concepts -> class code ->
-// quiz -> links to deeper interactive pages -> takeaways.
+// Renders a "Review by Week" page: recap -> key concepts -> checklist ->
+// class code -> quiz -> links to deeper interactive pages -> takeaways.
 //
 // Every section past the recap is optional. A week whose class has not run yet
 // carries only a title and a summary, and a planning week (T3 W10) has no code
-// at all, so nothing here may assume a field exists.
-export default function WeekView({ week, onNavigate }) {
+// at all, so nothing here may assume a field exists. `checklist` is for weeks
+// the student works through rather than reviews (T3 W11 build order, W12 talk
+// order): `{ title, lead, items: [{ id, label, hint? }] }`, ticks kept per week
+// under `storageKey`.
+export default function WeekView({ week, onNavigate, storageKey }) {
   let secNum = 1
   const num = () => String(secNum++).padStart(2, '0')
 
@@ -40,6 +44,12 @@ export default function WeekView({ week, onNavigate }) {
               </div>
             ))}
           </div>
+        </Section>
+      )}
+
+      {week.checklist && (
+        <Section id="checklist" number={num()} title={week.checklist.title} lead={week.checklist.lead}>
+          <RepairChecklist storageKey={storageKey} title="Tick as you go" items={week.checklist.items} />
         </Section>
       )}
 

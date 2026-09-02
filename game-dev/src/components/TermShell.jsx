@@ -151,7 +151,13 @@ export default function TermShell({ term, slug }) {
           />
         )
       case 'week':
-        return <WeekView week={page.data} onNavigate={select} />
+        return (
+          <WeekView
+            week={page.data}
+            onNavigate={select}
+            storageKey={nsKey(term.id, `week:${page.data.slug}`)}
+          />
+        )
       default:
         return null
     }
