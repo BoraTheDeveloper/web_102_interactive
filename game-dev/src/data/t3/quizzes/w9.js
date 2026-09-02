@@ -1,9 +1,6 @@
 // Week 9 quiz. Transcribed from
 // game_dev/docs/2026_t3/quizzes/W9 - Quiz Questions.md, including the answer key.
 // Traps: Q6, Q10.
-//
-// Q7 keeps the source's bonus-track distractors verbatim so the page matches the
-// Kahoot. They are wrong answers naming games this course does not build.
 
 const w9Quiz = {
   title: 'Week 9 check',
@@ -82,13 +79,13 @@ const w9Quiz = {
     {
       q: 'Which homework game should be complete after this week?',
       options: [
-        'Space Shooter',
+        'The Collector',
         'Pong',
-        'Vampire Survivor',
-        'A Tiled platformer',
+        'The Platformer',
+        'Your final project',
       ],
       answerIndex: 1,
-      explanation: 'Pong homework chunk 5 finishes the third game this week.',
+      explanation: 'Pong homework chunk 5 finishes the third game this week. The Collector and the Platformer were built in class, not as homework, and the final project only starts next week.',
     },
     {
       q: 'Win and lose are game states.',
