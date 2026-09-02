@@ -1117,8 +1117,8 @@ pre {
 
 /* ---------- Traced debugger demo ---------- */
 .traced {
-  overflow-x: auto;
-  overflow-y: hidden;
+  /* No overflow clipping here: the code pane scrolls itself, and an overflow
+     rule on this box would stop the sticky side column from sticking. */
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius);
@@ -1173,6 +1173,12 @@ pre {
   gap: 16px;
   padding: 24px;
   border-left: 1px solid var(--line);
+  /* Stays on screen while a long code pane scrolls past on the left. */
+  position: sticky;
+  top: 16px;
+  align-self: start;
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
 }
 
 .traced-live {
@@ -1231,8 +1237,13 @@ pre {
   flex-direction: column;
   gap: 8px;
   margin: 0;
-  padding: 0;
+  padding: 2px;
   list-style: none;
+  max-height: 260px;
+  overflow-y: auto;
+}
+.traced-side .trace-canvas {
+  max-width: 560px;
 }
 
 .trace-step {
@@ -1343,6 +1354,9 @@ pre {
   .traced-side {
     border-top: 1px solid var(--line);
     border-left: none;
+    position: static;
+    max-height: none;
+    overflow-y: visible;
   }
 }
 
@@ -1664,7 +1678,7 @@ pre {
 .trace-canvas {
   display: block;
   width: 100%;
-  max-width: 480px;
+  max-width: 960px;
   height: auto;
   aspect-ratio: 480 / 300;
   border: 1px solid var(--line);
@@ -1711,6 +1725,45 @@ pre {
   flex-direction: column;
   gap: 6px;
   max-width: 320px;
+}
+/* Canvas with its controls beside it. Wraps to one column when narrow. */
+.demo-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  align-items: flex-start;
+}
+.demo-row .trace-canvas {
+  flex: 1 1 480px;
+  min-width: 0;
+}
+.demo-row .demo-controls,
+.demo-row .draw-order-list {
+  flex: 1 1 300px;
+  max-width: none;
+  padding-top: 8px;
+}
+/* Row 1 of the side column: the slider, capped. Row 2: text, full width. */
+.demo-slider {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 300px;
+}
+.demo-slider input[type='range'] {
+  width: 100%;
+  accent-color: var(--accent);
+}
+.demo-row .demo-controls .demo-caption {
+  margin-top: 10px;
+}
+.demo-row .demo-controls .run-bar {
+  margin-top: 0;
+}
+/* Centre the side column against the canvas instead of hugging its top. */
+.demo-row .demo-controls--center {
+  align-self: center;
+  padding-top: 0;
 }
 .demo-controls label {
   color: var(--ink-soft);
@@ -1792,6 +1845,38 @@ pre {
 }
 .sprite-member--active {
   font-weight: 700;
+}
+
+/* Inheritance demo: blueprint cards beside the game, one column on narrow screens */
+.inherit-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+.inherit-side {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+.inherit-side .sprite-group-name {
+  overflow-wrap: anywhere;
+}
+.inherit-actions {
+  margin-top: 0;
+}
+.inherit-actions .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: normal;
+  text-align: left;
+}
+@media (max-width: 1100px) {
+  .inherit-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* Project builder */
