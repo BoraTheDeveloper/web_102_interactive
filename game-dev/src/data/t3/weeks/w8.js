@@ -1,7 +1,12 @@
 // Review by Week 8: Platformer, Gravity and Jump.
 // Source: game_dev/docs/2026_t3/slides/W8 - Platformer Gravity and Jump.md (section E,
-// the must-do file). The second code block in section E is the Mini Challenge and
-// uses JUMP = -18. The main path is -16.
+// the must-do file). Every number is per second and every position line is
+// multiplied by dt: MOVE = 300, GRAVITY = 3600, JUMP = -960. The second code block in
+// section E is the Mini Challenge and raises JUMP to -1080 so the player can reach the
+// stretch platform.
+// The one deliberate difference from the deck listing: the deck writes its em dashes as
+// "  -  " in set_caption, as every other deck does; the code students read here uses " - ",
+// matching w6.js, w7.js and w9.js.
 
 import quiz from '../quizzes/w8.js'
 
@@ -14,7 +19,7 @@ const w8 = {
   keyPoints: [
     {
       heading: 'Gravity is a speed that grows, not a distance',
-      body: 'Two lines do the whole job. `self.direction.y += GRAVITY` makes the falling speed bigger, then `self.rect.y += self.direction.y` moves the player by that speed. Because the speed keeps growing, the drop accelerates. Start from rest with `GRAVITY = 1` and after three frames you have fallen 1 + 2 + 3 = 6 pixels, not 3. This platformer counts in pixels per frame, so `update` still takes `dt` but does not multiply by it. That is deliberate. Do not add `* dt` here.',
+      body: 'Two lines do the whole job. `self.direction.y += GRAVITY * dt` makes the falling speed bigger, then `self.rect.y += self.direction.y * dt` moves the player by that speed. Because the speed keeps growing, the drop accelerates. Start from rest with `GRAVITY = 3600` px/s² and at 60 fps the speed gains 60 px/s each frame, so after three frames the player has fallen 1 + 2 + 3 = 6 pixels, not 3. Gravity is an *acceleration*: pixels per second squared, not pixels per frame. The `* dt` is what keeps the fall the same on a slow computer - a slow frame adds a bigger slice of speed and moves a bigger step, in the same ratio - which is the same `speed * dt` the Collector walked with last week.',
     },
     {
       heading: 'Landing does three things',
@@ -42,9 +47,9 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Platformer - Gravity and Jump")
 clock = pygame.time.Clock()
 
-GRAVITY = 1        # Mini Challenge 3: tune these two until the hop feels right
-JUMP = -16
-MOVE = 5
+GRAVITY = 3600        # Mini Challenge 3: tune these two until the hop feels right
+JUMP = -960
+MOVE = 300
 
 
 class Platform(pygame.sprite.Sprite):
@@ -68,13 +73,13 @@ class Player(pygame.sprite.Sprite):
     def update(self, dt):
         keys = pygame.key.get_pressed()
         self.direction.x = int(keys[pygame.K_RIGHT]) - int(keys[pygame.K_LEFT])
-        self.rect.x += self.direction.x * MOVE
+        self.rect.x += self.direction.x * MOVE * dt
 
         if keys[pygame.K_SPACE] and self.on_floor:
             self.direction.y = JUMP
 
-        self.direction.y += GRAVITY
-        self.rect.y += self.direction.y
+        self.direction.y += GRAVITY * dt
+        self.rect.y += self.direction.y * dt
 
         self.on_floor = False
         hits = pygame.sprite.spritecollide(self, self.platforms, False)

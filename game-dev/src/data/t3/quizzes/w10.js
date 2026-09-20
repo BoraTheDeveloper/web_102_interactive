@@ -1,28 +1,29 @@
 // Week 10 quiz. Transcribed from
 // game_dev/docs/2026_t3/quizzes/W10 - Quiz Questions.md, including the answer key.
-// Traps: Q6, Q7, Q8.
+// Traps: Q1, Q6, Q7, Q9, Q10.
 
 const w10Quiz = {
   title: 'Week 10 check',
   intro: 'Ten questions on scope guardrails, verbs, what counts as a real twist, and the one-sentence read-back. Same questions as next class\'s Kahoot.',
   questions: [
     {
-      q: 'What is the main goal of Week 10?',
+      q: 'Which sentence says the plan back in one sentence correctly?',
+      trap: true,
       options: [
-        'Write a short plan for a realistic final game',
-        'Finish a new game in this hour',
-        'Build an online multiplayer game in one class',
-        'Learn a new language for 3D',
+        'In this game, you collect coins, the challenge is the 30-second timer, you win/lose when the timer hits zero',
+        'In this game, you play for fun, the challenge is that it is hard, you win/lose when you get bored',
+        'In this game, you collect coins and fight bosses, the challenge is the timer, you win/lose when you reach 10 points or time runs out',
+        'In this game, you ___, the challenge is ___, you win/lose when ___',
       ],
       answerIndex: 0,
-      explanation: 'Week 10 is for writing a short final-project plan. It is not a build day.',
+      explanation: 'The three blanks are the objective, the challenge, and the end condition, one each. The second option\'s blanks need a follow-up question, the third breaks the no-"and" rule with two verbs and two ends, and the fourth is still the empty formula.',
     },
     {
       q: 'Which project idea is most realistic for this final project?',
       options: [
         'A 3D online world',
         'A full social media app',
-        'A small Collector, Platformer or Pong-style game, or a mashup of those',
+        'A small Collector, Platformer, or Pong-style game, or a mashup of those',
         'A game with 100 levels and multiplayer',
       ],
       answerIndex: 2,
@@ -78,24 +79,12 @@ const w10Quiz = {
       trap: true,
       options: [
         'None, more features are always better',
-        'One player, one verb, one challenge and one end. This plan has two of each',
+        'One player, one verb, one challenge, and one end. This plan has two of each',
         'Only the "one player" rule. The rest is fine',
         'Only the twist rule, because there is no new picture',
       ],
       answerIndex: 1,
       explanation: 'Count the blanks: two players, two verbs, two challenges, two ends. Shrink until each is one.',
-    },
-    {
-      q: 'Which sentence says the plan back in one sentence correctly?',
-      trap: true,
-      options: [
-        'In this game, you collect coins, the challenge is the 30-second timer, you win/lose when the timer hits zero',
-        'In this game, you play for fun, the challenge is that it is hard, you win/lose when you get bored',
-        'In this game, you collect coins and fight bosses, the challenge is the timer, you win/lose when you reach 10 points or time runs out',
-        'In this game, you ___, the challenge is ___, you win/lose when ___',
-      ],
-      answerIndex: 0,
-      explanation: 'The three blanks are the objective, the challenge, and the end condition, one each. The second option\'s blanks need a follow-up question, the third breaks the no-"and" rule with two verbs and two ends, and the fourth is still the empty formula.',
     },
     {
       q: 'A smaller finished game is usually better than a huge unfinished game.',
@@ -104,10 +93,18 @@ const w10Quiz = {
       explanation: 'Finishing a small game is better than planning too much and not completing it.',
     },
     {
-      q: 'Changing only the pictures, not how the game plays, is enough for the final twist.',
+      q: 'Your objective and your challenge can be the same sentence.',
+      trap: true,
       options: ['True', 'False'],
       answerIndex: 1,
-      explanation: 'Theme-only swaps are not enough. The twist must change how the game plays.',
+      explanation: 'If those are the same sentence, one of them is missing. The objective is what the player wants. The challenge is what stops them.',
+    },
+    {
+      q: '"Same Pong, but the ball is a pizza" meets the twist rule.',
+      trap: true,
+      options: ['True', 'False'],
+      answerIndex: 1,
+      explanation: 'A pizza ball is a picture swap. A twist would change the rules (a third paddle, a shrinking table, a timer).',
     },
   ],
 }

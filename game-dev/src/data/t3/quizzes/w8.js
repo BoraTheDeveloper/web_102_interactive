@@ -21,18 +21,18 @@ const w8Quiz = {
     {
       q: 'What does gravity do to the player each frame?',
       options: [
-        'Pulls the player downward by growing `direction.y`',
+        'Grows `direction.y` by `GRAVITY * dt`',
         'Sets `direction.y` to a fixed positive number once',
         'Only runs when no keys are held',
         'Moves `direction.x`',
       ],
       answerIndex: 0,
-      explanation: 'Gravity pulls the player down each frame by adding to `direction.y`. A one-time set is a lift, not a fall.',
+      explanation: 'Gravity pulls the player down by adding `GRAVITY * dt` to `direction.y`: the step grows with the length of the frame, so the fall is the same on a slow computer. A one-time set is a lift, not a fall.',
     },
     {
-      q: 'Start at `direction.y = 0`, `rect.y = 0`, `GRAVITY = 1`. After **3** frames, `rect.y` is:',
-      code: `direction.y += GRAVITY
-rect.y += direction.y`,
+      q: 'Start at `direction.y = 0`, `rect.y = 0`, `GRAVITY = 3600`, `dt = 1/60`, updating once per frame. After **3** frames, `rect.y` is:',
+      code: `direction.y += GRAVITY * dt
+rect.y += direction.y * dt`,
       trap: true,
       options: [
         '`3`',
@@ -41,7 +41,7 @@ rect.y += direction.y`,
         '`0`',
       ],
       answerIndex: 1,
-      explanation: 'Frame 1: y-speed 1, y = 1. Frame 2: speed 2, y = 3. Frame 3: speed 3, y = 6. The total is 1 + 2 + 3, not 3.',
+      explanation: 'Frame 1: speed 60, y = 60 × 1/60 = 1. Frame 2: speed 120, y = 3. Frame 3: speed 180, y = 6. So 1 + 2 + 3 = 6, not 3.',
     },
     {
       q: 'When should the player be allowed to jump?',
@@ -55,7 +55,7 @@ rect.y += direction.y`,
       explanation: 'A normal jump is allowed only when `on_floor` is True. Double jump is a later bonus.',
     },
     {
-      q: '`JUMP` is `-16`. Which line actually jumps?',
+      q: '`JUMP` is `-960`. Which line actually jumps?',
       options: [
         '`self.direction.y = JUMP`',
         '`self.direction.y += JUMP`',
@@ -63,7 +63,7 @@ rect.y += direction.y`,
         '`self.rect.y = JUMP`',
       ],
       answerIndex: 0,
-      explanation: 'Jump **sets** an upward speed (`JUMP` is negative because y grows downward). `+= JUMP` stacks on repeat taps and launches the player.',
+      explanation: 'Jump **sets** an upward speed (`JUMP` is `-960` px/s, negative because y grows downward). `+= JUMP` stacks on repeat taps and launches the player.',
     },
     {
       q: 'What should happen when the player lands on a platform?',
@@ -85,7 +85,7 @@ rect.y += direction.y`,
         'In the `Platform` class',
       ],
       answerIndex: 1,
-      explanation: 'Gravity is part of the player\'s update and runs every frame.',
+      explanation: 'Gravity is part of the player\'s update, so `self.direction.y += GRAVITY * dt` runs every frame, scaled by that frame\'s slice of time.',
     },
     {
       q: 'Gravity should be added once before the game loop and never again.',

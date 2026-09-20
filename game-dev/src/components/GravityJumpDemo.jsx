@@ -2,17 +2,18 @@ import { useEffect, useRef, useState } from 'react'
 import { clear, drawRect, drawText, sharpCtx } from '../lib/canvas.js'
 
 // The W8 platformer, run with the deck's exact numbers. GRAVITY, JUMP and
-// MOVE are pixels per frame, never multiplied by dt, so the sim steps a fixed
-// 60 times a second no matter the monitor. Untick the landing line
+// MOVE are pixels per second (and pixels per second squared), so every position
+// line is multiplied by dt; the sim uses a fixed dt of 1/60 and steps it 60
+// times a second no matter the monitor. Untick the landing line
 // `self.direction.y = 0` and the player stands for a moment, then drops
 // through the ground, exactly as W8 slide 19 shows in class.
 const W = 480
 const H = 300
 const GAME_W = 800
 const GAME_H = 600
-const GRAVITY = 1
-const JUMP = -16
-const MOVE = 5
+const GRAVITY = 3600
+const JUMP = -960
+const MOVE = 300
 const STEP = 1 / 60
 
 const GROUND = { x: 0, y: 560, width: 800, height: 40 }
@@ -72,13 +73,13 @@ export default function GravityJumpDemo({ config }) {
     function update(s) {
       const keys = keysRef.current
       s.dirX = (keys.right ? 1 : 0) - (keys.left ? 1 : 0)
-      s.player.x += s.dirX * MOVE
+      s.player.x += s.dirX * MOVE * STEP
       s.player.x = Math.max(0, Math.min(GAME_W - s.player.width, s.player.x))
 
       if (keys.jump && s.onFloor) s.dirY = JUMP
 
-      s.dirY += GRAVITY
-      s.player.y += s.dirY
+      s.dirY += GRAVITY * STEP
+      s.player.y += s.dirY * STEP
 
       s.onFloor = false
       if (overlaps(s.player, GROUND) && s.dirY >= 0) {
@@ -137,8 +138,8 @@ export default function GravityJumpDemo({ config }) {
     keysRef.current[key] = on
   }
 
-  let caption = config?.caption || 'Space jumps, but only while on_floor is True. Watch direction.y: it starts at -16, gravity eats it one per frame, and the arc comes back down.'
-  if (!stopOnLand && status !== 'fell') caption = 'Wait and watch the red number. The snap still drags the feet back each frame, so it looks like standing. But direction.y is growing by 1 every frame. Once one step is taller than the ground and the player together, the box lands fully below the ground, spritecollide finds nothing, and there is nothing left to snap to.'
+  let caption = config?.caption || 'Space jumps, but only while on_floor is True. Watch direction.y: it starts at -960 px/s, gravity adds GRAVITY * dt every frame, and the arc comes back down.'
+  if (!stopOnLand && status !== 'fell') caption = 'Wait and watch the red number. The snap still drags the feet back each frame, so it looks like standing. But direction.y is growing by GRAVITY * dt every frame - 60 px/s at 60 fps - and never stops. Once the step direction.y * dt is taller than the ground and the player together, the box lands fully below the ground, spritecollide finds nothing, and there is nothing left to snap to.'
   if (status === 'fell') caption = 'Thickness would only buy time. The one fix is `self.direction.y = 0` on landing. Tick the box and reset.'
 
   return (

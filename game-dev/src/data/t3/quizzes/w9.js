@@ -23,7 +23,7 @@ const w9Quiz = {
         'A picture that never does anything',
         'Something the player reaches to win',
         'A way to quit Python',
-        'The lose object. Touching it ends the run',
+        'The lose object — touching it ends the run',
       ],
       answerIndex: 1,
       explanation: 'The flag is the goal the player tries to reach.',
@@ -53,7 +53,7 @@ const w9Quiz = {
     {
       q: 'Why keep win and lose as game states?',
       options: [
-        'So the game can switch between playing, winning and losing',
+        'So the game can switch between playing, winning, and losing',
         'So gravity turns off forever in `__init__`',
         'So `all_sprites.update` keeps running under the win text',
         'So the player can still jump after winning',
@@ -68,8 +68,8 @@ const w9Quiz = {
 # state is never assigned`,
       trap: true,
       options: [
-        'Yes, touching the flag always wins',
-        'No, nothing switched `state` to win, so playing continues',
+        'Yes — touching the flag always wins',
+        'No — nothing switched `state` to win, so playing continues',
         'Yes if `score` is now greater than 0',
         'Yes because `colliderect` ends the loop',
       ],

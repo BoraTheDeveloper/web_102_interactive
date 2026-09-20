@@ -43,9 +43,9 @@ pygame.display.set_caption("Platformer - A Complete Level")
 clock = pygame.time.Clock()
 font = pygame.font.Font(None, 48)
 
-GRAVITY = 1
-JUMP = -16
-MOVE = 5
+GRAVITY = 3600
+JUMP = -960
+MOVE = 300
 
 
 class Platform(pygame.sprite.Sprite):
@@ -76,13 +76,14 @@ class Player(pygame.sprite.Sprite):
 
     def update(self, dt):
         keys = pygame.key.get_pressed()
-        self.rect.x += (int(keys[pygame.K_RIGHT]) - int(keys[pygame.K_LEFT])) * MOVE
+        self.direction.x = int(keys[pygame.K_RIGHT]) - int(keys[pygame.K_LEFT])
+        self.rect.x += self.direction.x * MOVE * dt
 
         if keys[pygame.K_SPACE] and self.on_floor:
             self.direction.y = JUMP
 
-        self.direction.y += GRAVITY
-        self.rect.y += self.direction.y
+        self.direction.y += GRAVITY * dt
+        self.rect.y += self.direction.y * dt
 
         self.on_floor = False
         hits = pygame.sprite.spritecollide(self, self.platforms, False)
