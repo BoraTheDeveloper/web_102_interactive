@@ -1,5 +1,5 @@
 // Visual concept: Game States, traced on the W7 Collector.
-// Source: game_dev/docs/2026_t3/slides/W7 - Game Anatomy and the One-Sentence Pitch.md
+// Source: game_dev/docs/2026_t3/slides/W7 - Fair Movement and Three Rooms.md
 // (slides 14 to 21) and W9 slide 23 for the "inside changes, outside shows" rule.
 // The scene is the collector with a `state`, so the canvas text follows the
 // same three branches the code does. One analogy only: rooms.

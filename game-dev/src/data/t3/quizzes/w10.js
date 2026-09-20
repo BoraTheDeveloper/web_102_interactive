@@ -1,10 +1,10 @@
 // Week 10 quiz. Transcribed from
 // game_dev/docs/2026_t3/quizzes/W10 - Quiz Questions.md, including the answer key.
-// Traps: Q6, Q7, Q10.
+// Traps: Q6, Q7, Q8.
 
 const w10Quiz = {
   title: 'Week 10 check',
-  intro: 'Ten questions on scope guardrails, verbs and what counts as a real twist. Same questions as next class\'s Kahoot.',
+  intro: 'Ten questions on scope guardrails, verbs, what counts as a real twist, and the one-sentence read-back. Same questions as next class\'s Kahoot.',
   questions: [
     {
       q: 'What is the main goal of Week 10?',
@@ -86,6 +86,18 @@ const w10Quiz = {
       explanation: 'Count the blanks: two players, two verbs, two challenges, two ends. Shrink until each is one.',
     },
     {
+      q: 'Which sentence says the plan back in one sentence correctly?',
+      trap: true,
+      options: [
+        'In this game, you collect coins, the challenge is the 30-second timer, you win/lose when the timer hits zero',
+        'In this game, you play for fun, the challenge is that it is hard, you win/lose when you get bored',
+        'In this game, you collect coins and fight bosses, the challenge is the timer, you win/lose when you reach 10 points or time runs out',
+        'In this game, you ___, the challenge is ___, you win/lose when ___',
+      ],
+      answerIndex: 0,
+      explanation: 'The three blanks are the objective, the challenge, and the end condition, one each. The second option\'s blanks need a follow-up question, the third breaks the no-"and" rule with two verbs and two ends, and the fourth is still the empty formula.',
+    },
+    {
       q: 'A smaller finished game is usually better than a huge unfinished game.',
       options: ['True', 'False'],
       answerIndex: 0,
@@ -96,13 +108,6 @@ const w10Quiz = {
       options: ['True', 'False'],
       answerIndex: 1,
       explanation: 'Theme-only swaps are not enough. The twist must change how the game plays.',
-    },
-    {
-      q: '"Same Pong, but the ball is a pizza" meets the twist rule.',
-      trap: true,
-      options: ['True', 'False'],
-      answerIndex: 1,
-      explanation: 'A pizza ball is a picture swap. A twist would change the rules: a third paddle, a shrinking table, a timer.',
     },
   ],
 }

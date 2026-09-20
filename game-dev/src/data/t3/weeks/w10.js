@@ -16,7 +16,7 @@ const w10 = {
   keyPoints: [
     {
       heading: 'You keep the skeleton, you change the rules',
-      body: 'A game design is not a burst of inspiration. It is a small number of decisions, and each one has a right-sized answer. You already have the skeleton from Week 7: loop, `dt`, input, classes, collisions, score, states. None of that changes for your project. What changes is the rules you hang on it. Nobody starts from a blank file.',
+      body: 'A game design is not a burst of inspiration. It is a small number of decisions, and each one has a right-sized answer. You pick a game you already built and finished, reuse its structure, and change only the rules you hang on it. Nobody starts from a blank file.',
     },
     {
       heading: 'Pick a structure you already built',
@@ -37,6 +37,10 @@ const w10 = {
     {
       heading: 'What is on the sheet',
       body: 'Structure, scope guardrail check, title, objective, controls, main mechanic, challenge, assets, first-build checklist, and my twist. The one people blur is objective against challenge. The **objective** is what the player wants (reach the flag). The **challenge** is what stops them (the thirty-second timer). If those two are the same sentence, one of them is missing. Shapes are fine for version 1 assets.',
+    },
+    {
+      heading: 'Say the plan back in one sentence',
+      body: 'Read your five boxes as one sentence: **"In this game, you ___, the challenge is ___, you win/lose when ___."** Your objective fills the first blank, your challenge the second, your end condition the third. The three blanks are the fastest vagueness test on the sheet. If a blank needs the word "and", the plan is too big: cut it here, on the sheet, not in Week 12. A neighbour who hears the sentence should be able to repeat it back with no follow-up question.',
     },
   ],
   related: [

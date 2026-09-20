@@ -1,23 +1,23 @@
-// Review by Week 7: Game Anatomy and the One-Sentence Pitch.
-// Source: game_dev/docs/2026_t3/slides/W7 - Game Anatomy and the One-Sentence Pitch.md
+// Review by Week 7: Fair Movement and Three Rooms.
+// Source: game_dev/docs/2026_t3/slides/W7 - Fair Movement and Three Rooms.md
 // (section H, Exercise 4: the must-do end state, before the Make features).
 
 import quiz from '../quizzes/w7.js'
 
 const w7 = {
   slug: 'w7',
-  title: 'Week 7 · Game Anatomy and the One-Sentence Pitch',
-  subtitle: 'Vector2 and normalize, the Game Anatomy, and three rooms',
+  title: 'Week 7 · Fair Movement and Three Rooms',
+  subtitle: 'Vector2 and normalize, and the three rooms',
   summary:
-    'Two things changed in the Collector this week. Diagonal movement stopped being faster than straight movement, because a `Vector2` direction gets `normalize()` before it is used. And the game gained a start screen and an ending, because one `state` variable now decides which lines are allowed to run. You also got a name for the whole shape: the Game Anatomy, seven pieces that every game you build has.',
+    'Two things changed in the Collector this week. Diagonal movement stopped being faster than straight movement, because a `Vector2` direction gets `normalize()` before it is used. And the game gained a start screen and an ending, because one `state` variable now decides which lines are allowed to run. That is the whole week: one call added to the direction, and one variable acting as the sign on the door.',
   keyPoints: [
     {
       heading: 'A direction is a vector, and normalize makes it one step',
       body: 'Pressing Left and Up together used to move you further than pressing Left alone, because you got a full step on each axis. Collect the keys into a `pygame.Vector2` and `normalize()` shortens any direction back to one step long, so every direction costs the same. It is only legal on a vector with length, which is why the call sits behind `if direction.length() > 0`. Normalizing `(0, 0)` raises an error.',
     },
     {
-      heading: 'The seven-piece Game Anatomy',
-      body: 'Loop, `dt`, input, classes and sprites, collisions, score, and **states**. You could already point at six of those in your own file. States was the missing one, and that gap is the whole reason for this week. The same seven pieces describe the Collector, the Platformer you start next week, and Pong. An FRect keeps decimals, so `rect.center += direction * speed * dt` is exact and needs no separate position variable.',
+      heading: 'The movement line writes straight back into the rect',
+      body: 'The movement line is `rect.center += direction * speed * dt`, and the result rarely lands on a whole pixel. Because the box is an `FRect` (`get_frect` from W6), it preserves those sub-pixel decimals, so the vector is added straight into `rect.center` and nothing else has to remember the position. An integer `Rect` would truncate the remainders. The rect **is** the position.',
     },
     {
       heading: 'One variable, three rooms',
@@ -26,10 +26,6 @@ const w7 = {
     {
       heading: 'Not being drawn is not the same as not running',
       body: 'Move `all_sprites.update(dt)` outside the `"playing"` block and everything still looks fine. Hold Left on the title screen for five seconds and nothing visible happens, because the start room draws no sprites. Then press SPACE and your player has already walked into the left wall. It was moving the whole time. **Ask which room you are in, then ask which lines are allowed in that room.**',
-    },
-    {
-      heading: 'Any game fits in one sentence',
-      body: 'The formula is: in this game you ___, the challenge is ___, and you win or lose when ___. If you cannot fill the three blanks, the idea is not finished yet. This is the same test you will run on your own final project in Week 10, so practise it on games you already know.',
     },
   ],
   code: `import pygame
@@ -143,11 +139,9 @@ pygame.quit()`,
   ],
   quiz,
   takeaways: [
-    'You can name the seven pieces of the Game Anatomy without looking',
     'You can use a `Vector2` direction and say why `normalize()` makes diagonal fair',
     'You can hold three rooms in one `state` variable and move between them',
     'You can explain why code that is not drawn is still running',
-    'You can pitch any game in one sentence, including your own',
   ],
 }
 

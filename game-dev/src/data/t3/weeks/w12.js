@@ -60,7 +60,7 @@ const w12 = {
       {
         id: 'w12-idea',
         label: 'The idea and the objective',
-        hint: 'One sentence: what the player is trying to do. The pitch formula from Week 7 works here.',
+        hint: 'One sentence: what the player is trying to do. The pitch formula from Week 10 works here.',
       },
       {
         id: 'w12-controls',

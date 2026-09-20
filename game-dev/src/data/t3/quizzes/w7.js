@@ -8,18 +8,18 @@
 
 const w7Quiz = {
   title: 'Week 7 check',
-  intro: 'Ten questions on the Game Anatomy, states and the one-sentence pitch. Same questions as next class\'s Kahoot.',
+  intro: 'Ten questions on fair movement, states and the three rooms. Same questions as next class\'s Kahoot.',
   questions: [
     {
-      q: 'Which list best names the pieces of the universal game skeleton?',
+      q: 'Where does the `score >= 10` win check belong?',
       options: [
-        'Loop, delta time, input, classes, collisions, states, and score or win/lose',
-        'Camera, tile map, file save, and online chat',
-        '`init`, `set_mode`, and `quit` only',
-        'Sprites and groups only. The loop is optional once you have classes',
+        'Before the coin collision loop',
+        'After the full coin collision loop, still inside `if state == "playing":`',
+        'Outside the playing door, so it runs before the events',
+        'In the event loop, beside the quit check',
       ],
-      answerIndex: 0,
-      explanation: 'The skeleton is the loop, delta time, input, classes, collisions, states, and score or win/lose. Camera and tile maps are off the main path.',
+      answerIndex: 1,
+      explanation: 'The update-and-collision block lives behind the door, and the win check reads the score once that frame\'s collisions are done.',
     },
     {
       q: 'What do game states such as start, playing and game-over control?',
@@ -66,15 +66,15 @@ const w7Quiz = {
       explanation: 'Game-over tells the player the run ended and how to restart. It is a state on screen, not an instant quit.',
     },
     {
-      q: 'What is the one-sentence formula for describing a game?',
+      q: 'Which line moves the game from the start room into the playing room?',
       options: [
-        'In this game, you ___, the challenge is ___, you win/lose when ___',
-        'This game uses Python, so it is finished',
-        'Draw a circle, then close the window',
-        'List every class in the file',
+        '`state == "playing"` — it asks which room the game is in',
+        '`state = "playing"` — it puts the game in the playing room',
+        '`score = 10` — it ends the game',
+        '`pygame.quit()` — it closes the window',
       ],
-      answerIndex: 0,
-      explanation: 'The formula is: you do this, the challenge is this, you win or lose when this happens.',
+      answerIndex: 1,
+      explanation: '`==` asks, `=` tells. `state = "playing"` moves the game into the playing room; `state == "playing"` only asks whether it is already there.',
     },
     {
       q: '`state` is `"start"`. The player holds the arrow keys on the start screen. What happens?',
@@ -94,10 +94,10 @@ if keys[pygame.K_SPACE] and state == "start":
       explanation: 'Arrow keys on the start screen do nothing until `state` becomes `"playing"`. That is the point of the door.',
     },
     {
-      q: 'The Collector, the Platformer and Pong can all use the same skeleton pieces.',
+      q: 'Pressing R on the game-over screen puts the score back to 0 and respawns every coin.',
       options: ['True', 'False'],
       answerIndex: 0,
-      explanation: 'The same skeleton works for collector, platformer and pong-style games.',
+      explanation: 'Restarting puts the numbers back and every carried-forward W6 sprite goes back to its starting position; the FRect is the position.',
     },
     {
       q: 'Once a game has classes, it no longer needs a game loop.',

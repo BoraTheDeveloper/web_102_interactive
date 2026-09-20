@@ -1,5 +1,5 @@
 // Visual concept: Vectors and Direction, the W7 fix for W3's diagonal bug.
-// Source: game_dev/docs/2026_t3/slides/W7 - Game Anatomy and the One-Sentence Pitch.md
+// Source: game_dev/docs/2026_t3/slides/W7 - Fair Movement and Three Rooms.md
 // slides 10 to 12, and W3 slide 15 where the bug was planted on purpose.
 // No vector maths beyond length and direction. No self.pos: the FRect is the box.
 

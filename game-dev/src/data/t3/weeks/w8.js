@@ -10,7 +10,7 @@ const w8 = {
   title: 'Week 8 · Platformer: Gravity and Jump',
   subtitle: 'direction.y, GRAVITY, JUMP, on_floor, and landing',
   summary:
-    'New game, new file, same skeleton. You started `week8_platformer.py` from scratch and the sprite class you learned on the Collector worked unchanged in a completely different game. What is new is gravity: a speed that grows every frame and pulls the player down until something solid stops it. By the end you had a player who falls, lands on a platform, walks, and jumps.',
+    'New game, new file, same sprite shape. You started `week8_platformer.py` from the given stub, and the shape you learned on the Collector carried over unchanged into a completely different game. What is new is gravity: a speed that grows every frame and pulls the player down until something solid stops it. By the end you had a player who falls, lands on a platform, walks, and jumps.',
   keyPoints: [
     {
       heading: 'Gravity is a speed that grows, not a distance',
@@ -42,7 +42,7 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Platformer - Gravity and Jump")
 clock = pygame.time.Clock()
 
-GRAVITY = 1
+GRAVITY = 1        # Mini Challenge 3: tune these two until the hop feels right
 JUMP = -16
 MOVE = 5
 
