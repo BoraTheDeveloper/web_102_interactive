@@ -1720,6 +1720,17 @@ pre {
   font-size: var(--fs-300);
   line-height: 1.55;
 }
+/* A standalone HTML demo in an iframe; EmbedDemo sets the height. */
+.embed-demo iframe {
+  display: block;
+  width: 100%;
+  border: 0;
+  margin-bottom: 10px;
+}
+.embed-demo a {
+  color: var(--accent);
+  font-weight: 600;
+}
 .demo-controls {
   display: flex;
   flex-direction: column;

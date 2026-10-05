@@ -12,6 +12,7 @@ import CollisionGroupsDemo from './CollisionGroupsDemo.jsx'
 import InheritanceDemo from './InheritanceDemo.jsx'
 import VectorDirectionDemo from './VectorDirectionDemo.jsx'
 import GravityJumpDemo from './GravityJumpDemo.jsx'
+import EmbedDemo from './EmbedDemo.jsx'
 import RichText from './RichText.jsx'
 
 function renderDemo(concept) {
@@ -27,6 +28,8 @@ function renderDemo(concept) {
       return <VectorDirectionDemo config={config} />
     case 'gravityJump':
       return <GravityJumpDemo config={config} />
+    case 'embed':
+      return <EmbedDemo config={config} />
     case 'coordinates':
       return <CoordinatesDemo config={config} />
     case 'rectCollision':

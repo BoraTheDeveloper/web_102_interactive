@@ -17,6 +17,9 @@ import t3Inheritance from './concepts/t3-inheritance.js'
 import t3VectorDirection from './concepts/t3-vector-direction.js'
 import t3GameStates from './concepts/t3-game-states.js'
 import t3GravityJump from './concepts/t3-gravity-jump.js'
+import t3Camera from './concepts/t3-camera.js'
+import t3Pictures from './concepts/t3-pictures.js'
+import t3Animation from './concepts/t3-animation.js'
 
 import windowOpensCloses from './repairs/window-opens-closes.js'
 import blackWindow from './repairs/black-window.js'
@@ -35,8 +38,8 @@ import playerTooFast from './repairs/player-too-fast.js'
 const DEV = typeof import.meta.env !== 'undefined' && import.meta.env.DEV
 
 // Concepts in teaching order, so the sidebar reads like the term.
-// The t3- prefixed four are the ideas this term adds after week 5; weeks and
-// Pong chunks already link to them by these slugs.
+// The t3- prefixed ones are the ideas this term adds after week 5; weeks and
+// Pong chunks link to them by these slugs.
 const concepts = [
   gameLoop,
   coordinates,
@@ -49,6 +52,9 @@ const concepts = [
   t3VectorDirection,
   t3GameStates,
   t3GravityJump,
+  t3Camera,
+  t3Pictures,
+  t3Animation,
 ]
 
 // Repairs in the order the bugs first bite, which is also roughly week order.

@@ -1,0 +1,597 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>W9 Platformer Visualizer</title>
+<style>
+  :root {
+    --bg: #f6f4ef;
+    --panel: #ffffff;
+    --ink: #1d232b;
+    --muted: #5d6673;
+    --line: #d9d4c9;
+    --accent: #1f6feb;
+    --accent-soft: #e3edff;
+    --world: #b4561e;
+    --good: #1a7f37;
+    --good-soft: #e2f4e6;
+    --bad: #c62828;
+    --bad-soft: #fde4e4;
+    --code-bg: #1e2430;
+    --code-ink: #e8ecf2;
+    --code-hl: #3a4a6b;
+    --code-num: #ffd479;
+    --sky: #87ceeb;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #14171c; --panel: #1d2128; --ink: #e8ecf2; --muted: #9aa4b2; --line: #333a45;
+      --accent: #6ea8ff; --accent-soft: #1d2b44; --good-soft: #17301f; --bad-soft: #3a1d1d;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14171c; --panel: #1d2128; --ink: #e8ecf2; --muted: #9aa4b2; --line: #333a45;
+    --accent: #6ea8ff; --accent-soft: #1d2b44; --good-soft: #17301f; --bad-soft: #3a1d1d;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 18px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  header { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; padding: 14px 20px; border-bottom: 1px solid var(--line); background: var(--panel); position: sticky; top: 0; z-index: 5; }
+  header h1 { font-size: 20px; margin: 0; }
+  nav { display: flex; gap: 8px; flex-wrap: wrap; }
+  nav button { font: inherit; font-size: 17px; padding: 8px 16px; border-radius: 999px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); cursor: pointer; }
+  nav button[aria-selected="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .hint-keys { color: var(--muted); font-size: 14px; margin-left: auto; }
+  main { padding: 16px 20px 40px; max-width: 1400px; margin: 0 auto; }
+  section[hidden] { display: none; }
+  .lead { font-size: 22px; margin: 4px 0 14px; }
+  .lead b { color: var(--accent); }
+  .grid { display: grid; gap: 16px; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); align-items: start; }
+  .anim-grid { grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.35fr); }
+  @media (max-width: 980px) { .grid, .anim-grid { grid-template-columns: 1fr; } }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px; min-width: 0; }
+  .panel h2 { font-size: 16px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0 0 8px; }
+  canvas { display: block; width: 100%; height: auto; border-radius: 8px; image-rendering: pixelated; touch-action: none; }
+  .row { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; margin-top: 10px; }
+  .btn { font: inherit; font-size: 16px; padding: 7px 14px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); cursor: pointer; }
+  .btn:active { transform: translateY(1px); }
+  .btn.on { background: var(--accent-soft); border-color: var(--accent); }
+  label.tog { display: inline-flex; align-items: center; gap: 6px; font-size: 16px; cursor: pointer; }
+  label.tog input { width: 18px; height: 18px; }
+  .tag { display: inline-block; font-size: 12px; padding: 1px 7px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); margin-left: 4px; }
+  .tag.bad { background: var(--bad-soft); color: var(--bad); }
+  input[type=range] { width: 100%; }
+  pre.code { background: var(--code-bg); color: var(--code-ink); border-radius: 10px; padding: 12px 0; margin: 0; overflow-x: auto; font: 15px/1.55 ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+  pre.code .ln { display: block; padding: 0 14px; white-space: pre; border-left: 4px solid transparent; }
+  pre.code .ln.hl { background: var(--code-hl); border-left-color: var(--code-num); }
+  pre.code .ln.dim { opacity: .45; }
+  pre.code .n { color: var(--code-num); font-weight: 700; }
+  pre.code .c { color: #8fa1bd; }
+  table.vals { width: 100%; border-collapse: collapse; font-size: 15px; margin-top: 10px; }
+  table.vals th, table.vals td { text-align: left; padding: 5px 8px; border-bottom: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+  table.vals th { color: var(--muted); font-weight: 600; }
+  .yes { color: var(--good); font-weight: 600; }
+  .no { color: var(--muted); }
+  .callout { border-radius: 10px; padding: 10px 14px; margin-top: 12px; font-size: 16px; }
+  .callout.good { background: var(--good-soft); }
+  .callout.bad { background: var(--bad-soft); }
+  .callout.info { background: var(--accent-soft); }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 760px) { .two { grid-template-columns: 1fr; } }
+  .tree { font: 15px/1.6 ui-monospace, Menlo, Consolas, monospace; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; white-space: pre; overflow-x: auto; }
+  .tree .open { background: var(--accent-soft); color: var(--accent); border-radius: 4px; padding: 0 4px; font-weight: 700; }
+  .thumbs { display: flex; flex-wrap: wrap; gap: 10px; }
+  .thumb { border: 1px solid var(--line); border-radius: 8px; padding: 8px; text-align: center; font: 13px ui-monospace, Menlo, monospace; background: var(--bg); }
+  .thumb img { image-rendering: pixelated; height: 64px; display: block; margin: 0 auto 4px; }
+  .film { display: flex; gap: 12px; flex-wrap: wrap; }
+  .frame { border: 3px solid var(--line); border-radius: 10px; padding: 8px; text-align: center; background: var(--bg); font: 15px ui-monospace, Menlo, monospace; transition: border-color .08s, transform .08s; }
+  .frame img { image-rendering: pixelated; width: 96px; height: 96px; display: block; }
+  .frame.cur { border-color: var(--accent); transform: translateY(-4px); background: var(--accent-soft); }
+  .mod { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 8px; }
+  .mod div { min-width: 44px; text-align: center; border: 1px solid var(--line); border-radius: 6px; padding: 3px 0; font: 14px ui-monospace, Menlo, monospace; background: var(--bg); }
+  .mod div small { display: block; color: var(--muted); }
+  .mod div.cur { border-color: var(--accent); background: var(--accent-soft); font-weight: 700; }
+  .big { font-size: 28px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .muted { color: var(--muted); }
+  kbd { font: 13px ui-monospace, Menlo, monospace; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 5px; padding: 0 5px; background: var(--panel); }
+  /* ?embed: one tab inside the review site's iframe, no header */
+  html.embed header { display: none; }
+  html.embed main { padding: 1px; max-width: none; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Week 9: How It Works</h1>
+  <nav role="tablist">
+    <button role="tab" data-tab="camera" aria-selected="true">1 · Camera</button>
+    <button role="tab" data-tab="pictures" aria-selected="false">2 · Pictures</button>
+    <button role="tab" data-tab="anim" aria-selected="false">3 · Animation</button>
+  </nav>
+  <span class="hint-keys">Play: <kbd>←</kbd> <kbd>→</kbd> <kbd>Space</kbd> · Tabs: <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd></span>
+</header>
+
+<main>
+<!-- ======================= CAMERA ======================= -->
+<section id="tab-camera">
+  <p class="lead">The level is <b>1600</b> wide. The window is <b>800</b> wide. The window is a <b>camera</b> looking at part of the world.</p>
+  <div class="grid">
+    <div>
+      <div class="panel">
+        <h2>The window: what the player sees (screen position)</h2>
+        <canvas id="screenCanvas" width="800" height="600"></canvas>
+        <div class="row">
+          <button class="btn" data-hold="left">◀ Left</button>
+          <button class="btn" data-hold="right">Right ▶</button>
+          <button class="btn" data-hold="jump">Jump</button>
+          <button class="btn" id="camReset">Back to start</button>
+          <button class="btn" id="camPause">Pause</button>
+        </div>
+      </div>
+      <div class="panel" style="margin-top:16px">
+        <h2>The world: the whole level (world position)</h2>
+        <canvas id="worldCanvas" width="1600" height="600"></canvas>
+        <div class="row" style="display:block">
+          <label class="muted" for="scrub" style="font-size:15px">Drag to move the player (pauses the game): world x = <b id="scrubVal">80</b></label>
+          <input type="range" id="scrub" min="0" max="1560" value="80">
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="panel">
+        <h2>The code, with this frame's numbers</h2>
+        <pre class="code" id="camCode"></pre>
+        <table class="vals" id="camTable"></table>
+      </div>
+      <div class="panel" style="margin-top:16px">
+        <h2>Try it</h2>
+        <div style="display:grid; gap:8px">
+          <label class="tog"><input type="checkbox" id="optCamera" checked> Camera on <span class="tag">Exercise 6</span></label>
+          <label class="tog"><input type="checkbox" id="optBug"> Side clamp uses <code>WIDTH</code> <span class="tag bad">the bug</span></label>
+          <label class="tog"><input type="checkbox" id="optEnds"> Camera stops at the ends <span class="tag">Make</span></label>
+          <label class="tog"><input type="checkbox" id="optHudOffset"> Draw the score <i>with</i> the offset <span class="tag bad">wrong</span></label>
+          <label class="tog"><input type="checkbox" id="optPics"> Use pictures <span class="tag">Exercise 7</span></label>
+        </div>
+        <div class="callout info" id="camCallout"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= PICTURES ======================= -->
+<section id="tab-pictures" hidden>
+  <p class="lead">A picture is just a <b>Surface</b>, like the coloured box. It replaces two lines. <b>The rect is still the rect.</b></p>
+  <div class="two">
+    <div class="panel">
+      <h2>Before: a coloured box</h2>
+      <pre class="code"><span class="ln">self.image = pygame.Surface((<span class="n">40</span>, <span class="n">60</span>))</span><span class="ln">self.image.fill(<span class="n">"dodgerblue"</span>)</span><span class="ln">self.rect = self.image.get_frect(midbottom=pos)</span></pre>
+      <canvas id="picBox" width="320" height="320" style="max-width:320px; margin-top:12px"></canvas>
+      <p class="muted" id="picBoxInfo"></p>
+    </div>
+    <div class="panel">
+      <h2>After: a picture</h2>
+      <pre class="code"><span class="ln hl">self.image = pygame.image.load(<span class="n">"images/player/0.png"</span>)</span><span class="ln">self.rect = self.image.get_frect(midbottom=pos)</span></pre>
+      <canvas id="picImg" width="320" height="320" style="max-width:320px; margin-top:12px"></canvas>
+      <p class="muted" id="picImgInfo"></p>
+    </div>
+  </div>
+  <div class="row">
+    <label class="tog"><input type="checkbox" id="optRect" checked> Show the rect (what collisions use)</label>
+    <label class="tog"><input type="checkbox" id="optChecker" checked> Show see-through pixels</label>
+    <label class="tog"><input type="checkbox" id="optFill"> Forget to delete <code>fill(...)</code> <span class="tag bad">bug</span></label>
+  </div>
+
+  <div class="two" style="margin-top:16px">
+    <div class="panel">
+      <h2>Where does Python look for the file?</h2>
+      <div class="row" style="margin-top:0">
+        <span>VS Code has this folder open:</span>
+        <button class="btn on" data-cwd="good">week9</button>
+        <button class="btn" data-cwd="bad">Desktop</button>
+      </div>
+      <div class="tree" id="tree" style="margin-top:10px"></div>
+      <div class="callout" id="pathResult"></div>
+    </div>
+    <div class="panel">
+      <h2>Today's pictures (in the images folder)</h2>
+      <div class="thumbs" id="thumbs"></div>
+      <p class="muted" style="font-size:15px">Each one loads with <code>pygame.image.load("images/…")</code>. Its size becomes the rect's size.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= ANIMATION ======================= -->
+<section id="tab-anim" hidden>
+  <p class="lead">Animation is a <b>flipbook</b>: every frame, pick which picture to show. The rect never changes.</p>
+  <div class="grid anim-grid">
+    <div>
+      <div class="panel">
+        <h2>self.frames: a list of three pictures</h2>
+        <div class="film" id="film"></div>
+      </div>
+      <div class="panel" style="margin-top:16px">
+        <h2>The player right now</h2>
+        <canvas id="animStage" width="400" height="200"></canvas>
+        <div class="row">
+          <button class="btn" data-hold="left">◀ Left</button>
+          <button class="btn" data-hold="right">Right ▶</button>
+          <button class="btn" data-hold="jump">Jump</button>
+          <button class="btn" id="animPause">Pause</button>
+          <button class="btn" id="animStep">Step 1 frame</button>
+        </div>
+        <div class="row" style="display:block">
+          <label class="muted" for="speed" style="font-size:15px">Animation speed (frames of the flipbook per second): <b id="speedVal">10</b></label>
+          <input type="range" id="speed" min="1" max="30" value="10">
+          <div class="row" style="margin-top:6px"><label class="tog"><input type="checkbox" id="optSlow"> Slow motion (10× slower)</label>
+          <label class="tog"><input type="checkbox" id="optAuto"> Walk right by itself</label></div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="panel">
+        <h2>animate(dt), with this frame's numbers</h2>
+        <pre class="code" id="animCode"></pre>
+      </div>
+      <div class="panel" style="margin-top:16px">
+        <h2>How <code>%</code> loops the counter</h2>
+        <div class="row" style="margin-top:0; gap:24px">
+          <div><div class="muted" style="font-size:14px">frame_index</div><div class="big" id="fiVal">0.00</div></div>
+          <div><div class="muted" style="font-size:14px">int(frame_index)</div><div class="big" id="intVal">0</div></div>
+          <div><div class="muted" style="font-size:14px">% 3 → picture</div><div class="big" id="modVal">0</div></div>
+        </div>
+        <div class="mod" id="modStrip"></div>
+        <p class="muted" style="font-size:15px; margin-bottom:0">The counter keeps growing: 0, 1, 2, 3, 4… <code>% 3</code> is the remainder after dividing by 3, so it always lands on 0, 1 or 2: a picture that exists.</p>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<script>
+// ?embed shows only the tab named in the hash and reports the page height to
+// the parent, so the review site can size its iframe. ?theme=light|dark forces a theme.
+const params = new URLSearchParams(location.search);
+const EMBED = params.has("embed");
+if (EMBED) document.documentElement.classList.add("embed");
+if (params.get("theme")) document.documentElement.dataset.theme = params.get("theme");
+
+const IMG_SRC = {
+  p0: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAACXBIWXMAAAsTAAALEwEAmpwYAAABo0lEQVR4nO2aoU4DQRCGWdIaXgCLwJAWqEBR2RCSKt6glioUCo2qqiqW8AIoXGWrCCmk9Q2ChBcAQeDQu2I3k727r8nM5+725u7Pn9m5nb1zRVFsaWabFkBjBtACaMwAWgCNGUALoGlIAw7n39GFw7K742Lj7dlXVnzZqM8AM4AWQCOuASnCOS6d07nxUtRngBlAC6AR14BwTqbe66l4N5mjGxLqM8AMoAXQOOmeoHP+a1laA3Ipe12gPgPMAFoATem9QNWU3SuozwAzgBZAU3sN2L0desefN5Os+GWmHvUZYAbQAmjMAFoAjRlAC6DB9wNWbwvR9a2jjncs7QV6/YGnV30GmAG0AJrae4HFw5no+vXzX3R877IbrUHn7/vRePUZYAbQAmgqrwGPVz3/xMlmeb5ZagDMAFoAjbgX+F2/eAGdjwNvPLW2/3m9Fj2veTzKul/jbhbtFdRngBlAC6CpvRcI1/YX42k8IFFTwrX+9OletD+gPgPMAFoADb4nKCX8NhhiNUCIGUALoMmuAal/fYvhadY/PFXfX30GmAG0AJp/KyhuG7JImjwAAAAASUVORK5CYII=", p1: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAACXBIWXMAAAsTAAALEwEAmpwYAAABvUlEQVR4nO2avUoDQRSFd8La+AK2CjbiX0ArUwYRBME3sNRUqaysraysklZ8ASu72CU2ClFirVgIvoAWimvrjDDDMO5+i/d+3WRnwuFwcnNndkxRFJlkGrQAGjWAFkCThyYsj96jisSkNW1+jpeGb0nry0Z8AtQAWgCNCfUBsTXA5eF+nLI8KzobpdYE8QlQA2gBNMEaYIz/Jxj7P5/KX/cJ4hOgBtACaIJ7gbrh1pzUmiA+AWoALYCm8howc9yxxq9HvaT1k0Q94hOgBtACaNQAWgCNGkALoMHPA2LPDBdXmtY4di/Q3t6z9IpPgBpAC6CpfC8wPt+Mmv908+V9PnvQ8tagred573rxCVADaAE00TXg8/HW+s01X/zzL7pt+4P1enleLzUAagAtgCZ6L/C7BixYz0O9/cfdYYS8LJtaPUn6vrw/9O4VxCdADaAF0ET3AfncWtI9QLe33z0d+BcEaorb6w8uz6LOB8QnQA2gBdAE+4BG/9o7wT2jKxv33aDL1c6+NQ7dMxSfADWAFkCTfCZY9f1+9z6A6Y2S3kuIT4AaQAugCfYB/x3xCVADaAE0agAtgEYNoAXQfAPgqm3l0hdsowAAAABJRU5ErkJggg==", p2: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAACXBIWXMAAAsTAAALEwEAmpwYAAABtElEQVR4nO2arU4DQRSFGdIaXoAEhcDxK1BUNoQExRtgqUKh0CgUqkgIL4ABRWWrEKUpwRIcLwCChEXPFTu5maVfkzmf2+7O7Mnpnbv3zm6oqmqhZBZpATQygBZAIwNoATQygBZA0/IO2Bx91xYO085SqDu/MfzKGp+LrXuKjwAZQAugceeAFHaNe9d07ngvxUeADKAF0LhzgF2Tqed6anzoj9ANieIjQAbQAmiCd08whPix7M0BueTWBeoFDDKAFkDTeC/w3zTdKxQfATKAFkAz8xywfNGLjj/P+1njp5l6io8AGUALoJEBtAAaGUALoMH3A14nY9f161s70XGqF+geHkf6nh5uouuLjwAZQAugcfcC3jU/vtt3zf/+/Ft7fnXX/GcnnUjPwcea637FR4AMoAXQNL4fcH/ajX+wa3bOmG91M0AG0AJo3L2A/U4wVcv/vJy55m9vX2bN17oe1vYGejdokAG0ABp3HTBeeYuO25P6621tf3Q1qB+QyCm21h883urdYA4ygBZAg+8JprDvAi3eHKA6wCADaAE02Tkg9a1v1dvLek43Pb9ygEEG0AJo/gCJq4LS14N+UAAAAABJRU5ErkJggg==",
+  flag: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAuCAYAAAA/SqkPAAACFElEQVRYhWNMSq9igIH9O7b9h7EdPbwYYex5M9sYqA2YkC29djaK4d6D82CM7AhaABaYpQdWM4MFfrztBtMgy5UUDP8j+5wmPqY3YMIlAfM5TYPa0cOL0SEUFNwr4RIOoX9REhhNLEa2HMxhYGCY4a/CyMBwi8F90hoGmloMA2tznjEET5FiyNh4B+wIRXkDBmTHkOoQRXmD/0RZLGwvy8Aw5S9D35zJDJpqinDxgrRyhoyNV/8jO4QYADOnIK0cLnbzxlVMi98efMzAwCCF0yB1DW0wPWFWJ4o4ssHI8tdv3ScuVQuDfEwHwMQwQIAFl0RRSi48WGFBBwq2mT0zSLIAZs4EpKjxtPPBbTEuADMAV5zCALr84C0yxZTC6WIxCy4JbPkYlP+2H9pCcT4GAZLjGGYA1fMxvQATw4jLx/NmtjEgN/he3UPUyTTNx0lIltI9O82DNl9BVR4hH1PV4iSor/fv2IYiCcq3yPECAqTmY5g5nlD9KBZjA/cfXsDa3vK088HaokA3mJA5LDAGKLiJaV3gMohUwEKL7gkxgGlAbGUYjBYnpVehFCx0s5jWgImQAlr5molhgAALLglaZzMm7D0J2gOmQdOTeDtQPqYXYEIXGA1qWgFGfEMG1Kp7cVoMsnSmxW0GERNulHgGjfzQynImGCP9hCrDmzNfwWxQlgJZSkvACPMtCMB8DAMgn9PK1wC1F97fXh4fTwAAAABJRU5ErkJggg==", coin: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABwAAAAcCAYAAAByDd+UAAAFTElEQVRIid2WW2gcZRTHf9/M7kyy202ylyTNdtNLGnuv2qa2eClaQUXfWi+IUrAPPihKBUFQERFEQXwTC/pSsAWlIPok4qWIVRpMW+zNNLEam8Rcu9tkb9md3ZlPvpnN5tZYIz75h9mzc/bM/3++75zv7MD/HWIpwSEfibDBJkOjUd0XHcauWVzIlhn+zwQDOtGNdTyzNiSeDOqsu15MpszFy1l5pHuSD4sOk/9WUGyt59lbw+JNn6BOCEG81WTVmhrqGvxuwMRAlv7+IsNJiZSSkiR1OiVf6k5zeEmCPoG5p1kcSdTysO4T3HlPmHvujxBr8oQU7GSO8uVRkJJkGk6ct+n8xcG2JX/k+Oj7Mfm0DeUbCmqgP9AiPl9ew0ONTQYHnkvQuqYe6RRdcgUnmaNUEZuNoZyfo1+VGB+1GMxz7JtR+YSEOUH6fMFdUfHWmiBPLY+bvPDqamJNBmb7Kwjhw8n3kf4jy/jpUXJZxSMwjErmAZPYjhV03NHAxXNZtIK9WQiKwwV+WFSw0WTbnTFxuDagi4MvryIc8WPe9Dp68yPokT30fH2ero9PMDLiMDIqGRjwrBn0E9mVAL+GYWqsT2h0dWWJ+Nl9JcexgkPquoK7m8QHIR/r9z7ezIYtQdcncz2UzTsY6jrO2cNvI+25ZSmVYGzExipKmtqD7nYbQ+OYfrjU7+i1PhHuy/HZghou8xF/tFW7Utfg0954tx3d5/l/P3mNkcHVZAZ6sHJex6uOdZOZV8ONu+pYWT/l+m0H3jpaYjIvrU+uyJaCw0SlRzy0BngQpLbttlBVzMrb9Hx/leSln6piCvFNIdbtjs4vP72nMliWl4Suwc1rNbUiY0WA+6ZjqoIxkx3Ktq8PVAmGzqcpW477PbyiFqF5K1vV0cDK7Q1ouncfTtS6Vh0JVdNptMU9+phJx7SvshYI+kRC2WiT13aqFqmLyerD7XdF3K389USS6CpPYPmGENHWWhrbAhw/1Of60mmve12uutnccq6gBjXKGn7hiqlDbZfn1qj5pqB7TaNjX4trc0mr6rNn9ZS/0pIaeBnOFlQNpz6m/kxTttNu4Q1zSbPdhWnOInQZFyzMg+WQVTbVO1HtvmhkRtC2JHbp+le56NVZIRKpUjKR8ayDxz1HOVOSv6u97x922NTm7UUsBsGAIJeXnPls6IarU7HqmWkorhnueSscL9Kp7KV+iVUpiRY0uWVvHM03k/Vi0DTB5i06lSNK0fK4FMYKnFwgODjF17YkO5qRdPc67mw0NsaJti1j52MrMGoWjN0q/H7Btlt1GupnfN09DorLliI9NMXxaX+VxZaUlvlES9hgZzoDaztihFrcxqVWWiw382hCYJWgXFbTBoJBQSKhs3WLRig0IzY2Bl922aSmJL0ZDl3J88X0b3PaMKjTvK9VdPs1Ub9zpc59++PEwrhHZP4YWwzJJBzvLNM1KCk58tqnA3JD3ubqghUqlCS5gk1/a4B9Y1lJoS+LP51zt2q6NotB5dPXJ+k8a3NmSM1SyY9X5YHRIqdmxy0oTNLigqEhogZ3D2cgm5ZkU+oVQmCaAv/Mn76LqSn4c0hy4YLDz785nBuRlB3J2Qn52sU0H8znXzTvWxo4uD0s3lFHp75GsLJe0BiEGkMJezHFIhQsyXgO+iclkwWpBljpTEq+eG6S96/H+7cb1Wyy4/aYeE81krpXTRMwwKzsS9GGvAVOpb4pi86TV+XzY0XOLMb5j2ZXa4B71y4T++O13GtqM4NYoWAzMFzg28sZeWRwiu9uxLXkYVmjU1/jvQjLgs14wSG9lOf/Am5iOr6NZGLDAAAAAElFTkSuQmCC", worm0: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACwAAAAcCAYAAAAa/l2sAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAqUlEQVRYhWP8//8/AwMDAwMjIyMDPvAnw/o/Mv/BmX941aMDBRMmvPIsM47idQDMnfhNGYRg1MG0Boy40jCt0ywhgJ6mR9MwvcCog2kNRh1MazDqYFqDUQfTGgw5B7PAGOhtB1oD90cqKPydcndQ+M5e8ejuYWRgGIIhPOpgWgMWwkpoA9DTLLHyQy6ERx1Ma0B0GkbvoxHq46HLU9rHg4EhF8KjDqY1AABRhCsnZ2cZ8wAAAABJRU5ErkJggg==", worm1: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACwAAAAcCAYAAAAa/l2sAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAkElEQVRYhWP8//8/w1ACTAPtAFLBqINpDRgJKfiTYY2SyB+c+UeSBQompIUJy4yjeN005EJ41MG0Bhjphd5plhBAT9NDLoRHHUxrMOpgWoNRB9MasKCXu/QG7o9UUPg75e6g8J294lHcN+RCeNTBtAYsA+0A9DRLSH7IhfCog2kNGEkthwe6fTzkQnjUwbQGABMNIcN9dwtpAAAAAElFTkSuQmCC",
+};
+const IMG = {};
+let loaded = 0;
+const names = Object.keys(IMG_SRC);
+names.forEach(k => { const im = new Image(); im.onload = () => { if (++loaded === names.length) start(); }; im.src = IMG_SRC[k]; IMG[k] = im; });
+
+// ---------- same numbers as the Python game ----------
+const WIDTH = 800, HEIGHT = 600, LEVEL_WIDTH = 1600;
+const GRAVITY = 3600, JUMP = -960, MOVE = 300, START = { x: 80, y: 520 };
+const PLATFORMS = [[0,520,360,80],[250,430,170,24],[500,340,170,24],[760,420,160,24],[1000,360,160,24],[1240,300,200,24]];
+const FLAG = { cx: 1400, bottom: 300 };
+const COINS = [[585,300],[840,380],[1080,320]];
+
+// ---------- input (keyboard + hold buttons) ----------
+const keys = { left: false, right: false, jump: false };
+const keyMap = { ArrowLeft: "left", ArrowRight: "right", " ": "jump", Spacebar: "jump" };
+addEventListener("keydown", e => {
+  if (keyMap[e.key]) { keys[keyMap[e.key]] = true; e.preventDefault(); if (document.activeElement && document.activeElement !== document.body) document.activeElement.blur(); }
+  if (!EMBED && e.target.tagName !== "INPUT" && ["1","2","3"].includes(e.key)) showTab(["camera","pictures","anim"][+e.key - 1]);
+});
+addEventListener("keyup", e => { if (keyMap[e.key]) keys[keyMap[e.key]] = false; });
+addEventListener("blur", () => { keys.left = keys.right = keys.jump = false; });
+document.querySelectorAll("[data-hold]").forEach(b => {
+  const k = b.dataset.hold;
+  const on = e => { keys[k] = true; e.preventDefault(); }, off = () => { keys[k] = false; };
+  b.addEventListener("pointerdown", on); b.addEventListener("pointerup", off); b.addEventListener("pointerleave", off); b.addEventListener("pointercancel", off);
+});
+
+// ---------- tabs ----------
+let tab = "camera";
+function showTab(t) {
+  tab = t;
+  document.querySelectorAll("nav button").forEach(b => b.setAttribute("aria-selected", b.dataset.tab === t));
+  document.querySelectorAll("main > section").forEach(s => s.hidden = s.id !== "tab-" + t);
+  if (!EMBED) { try { localStorage.setItem("w9vis-tab", t); } catch (e) {} }
+}
+document.querySelectorAll("nav button").forEach(b => b.addEventListener("click", () => showTab(b.dataset.tab)));
+
+// ---------- a Player that mirrors the Python Player ----------
+function makePlayer(usePics) {
+  return { x: 0, y: 0, w: usePics ? 64 : 40, h: usePics ? 64 : 60, vx: 0, vy: 0, dirx: 0, onFloor: false,
+           frameIndex: 0, flip: false, pics: usePics, cur: 0, branch: [] };
+}
+function placeMidbottom(p, mx, bottom) { p.x = mx - p.w / 2; p.y = bottom - p.h; }
+function overlap(a, b) { return a.x < b[0] + b[2] && a.x + a.w > b[0] && a.y < b[1] + b[3] && a.y + a.h > b[1]; }
+
+function stepPlayer(p, dt, platforms, maxX, speed) {
+  p.dirx = (keys.right ? 1 : 0) - (keys.left ? 1 : 0);
+  p.x += p.dirx * MOVE * dt;
+  if (keys.jump && p.onFloor) p.vy = JUMP;
+  p.vy += GRAVITY * dt;
+  p.y += p.vy * dt;
+  p.onFloor = false;
+  for (const pl of platforms) if (overlap(p, pl) && p.vy >= 0) { p.y = pl[1] - p.h; p.vy = 0; p.onFloor = true; }
+  p.x = Math.max(0, Math.min(p.x, maxX - p.w));
+  animate(p, dt, speed);
+}
+function animate(p, dt, speed) {
+  p.branch = [];
+  if (p.dirx) { p.frameIndex += speed * dt; p.flip = p.dirx < 0; p.branch.push("walk"); }
+  else { p.frameIndex = 0; p.branch.push("still"); }
+  if (!p.onFloor) { p.frameIndex = 1; p.branch.push("air"); }
+  p.cur = Math.floor(p.frameIndex) % 3;
+}
+function drawPlayer(ctx, p, sx, sy, scale = 1) {
+  if (!p.pics) { ctx.fillStyle = "#1e90ff"; ctx.fillRect(sx, sy, p.w * scale, p.h * scale); return; }
+  const im = IMG["p" + p.cur];
+  ctx.save();
+  if (p.flip) { ctx.translate(sx + p.w * scale, sy); ctx.scale(-1, 1); ctx.drawImage(im, 0, 0, p.w * scale, p.h * scale); }
+  else ctx.drawImage(im, sx, sy, p.w * scale, p.h * scale);
+  ctx.restore();
+}
+
+// ======================= CAMERA TAB =======================
+const sc = document.getElementById("screenCanvas").getContext("2d");
+const wc = document.getElementById("worldCanvas").getContext("2d");
+const opt = id => document.getElementById(id).checked;
+let cam = { p: makePlayer(false), coins: [], paused: false, collected: 0, msg: "" };
+function camReset() {
+  const usePics = opt("optPics");
+  cam.p = makePlayer(usePics); placeMidbottom(cam.p, START.x, START.y);
+  cam.coins = COINS.map(([x, y]) => ({ x: x - 14, y: y - 14, w: 28, h: 28 }));
+  cam.collected = 0; cam.msg = "";
+}
+document.getElementById("camReset").onclick = camReset;
+document.getElementById("optPics").onchange = camReset;
+const pauseBtn = document.getElementById("camPause");
+function setPaused(v) { cam.paused = v; pauseBtn.textContent = v ? "Play" : "Pause"; pauseBtn.classList.toggle("on", v); }
+pauseBtn.onclick = () => setPaused(!cam.paused);
+const scrub = document.getElementById("scrub");
+scrub.addEventListener("input", () => {
+  setPaused(true);
+  const p = cam.p, x = +scrub.value;
+  p.x = Math.min(x, LEVEL_WIDTH - p.w);
+  // stand on the highest platform under the player, or float at mid-height
+  const under = PLATFORMS.filter(pl => p.x + p.w > pl[0] && p.x < pl[0] + pl[2]).sort((a, b) => a[1] - b[1])[0];
+  p.y = (under ? under[1] : 400) - p.h; p.vy = 0; p.onFloor = !!under;
+});
+
+function flagRect() { return { x: FLAG.cx - 15, y: FLAG.bottom - 46, w: 30, h: 46 }; }
+
+function camUpdate(dt) {
+  const p = cam.p;
+  if (!cam.paused && !cam.msg) {
+    const maxX = opt("optBug") ? WIDTH : LEVEL_WIDTH;
+    stepPlayer(p, dt, PLATFORMS, maxX, 10);
+    cam.coins = cam.coins.filter(c => { if (overlap(p, [c.x, c.y, c.w, c.h])) { cam.collected++; return false; } return true; });
+    const f = flagRect();
+    if (overlap(p, [f.x, f.y, f.w, f.h])) cam.msg = "You win!";
+    if (p.y > HEIGHT) cam.msg = "You lose!";
+    scrub.value = Math.round(p.x);
+  } else if (cam.msg && !cam.paused) {
+    cam.msgTime = (cam.msgTime || 0) + dt;
+    if (cam.msgTime > 1.6) { cam.msgTime = 0; camReset(); }
+  }
+}
+
+function camOffset() {
+  const p = cam.p;
+  const centerx = p.x + p.w / 2;
+  let off = opt("optCamera") ? -(centerx - WIDTH / 2) : 0;
+  const raw = off;
+  if (opt("optCamera") && opt("optEnds")) off = Math.max(-(LEVEL_WIDTH - WIDTH), Math.min(off, 0));
+  return { centerx, off, raw };
+}
+
+function drawLevel(ctx, off, pics) {
+  ctx.fillStyle = "#87ceeb"; ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+  for (const [x, y, w, h] of PLATFORMS) { ctx.fillStyle = "#a0522d"; ctx.fillRect(x + off, y, w, h); }
+  const f = flagRect();
+  if (pics) ctx.drawImage(IMG.flag, f.x + off, f.y, f.w, f.h);
+  else { ctx.fillStyle = "#32cd32"; ctx.fillRect(FLAG.cx - 14 + off, FLAG.bottom - 48, 28, 48); }
+  for (const c of cam.coins) {
+    if (pics) ctx.drawImage(IMG.coin, c.x + off, c.y, 28, 28);
+    else { ctx.fillStyle = "#ffd700"; ctx.fillRect(c.x + off + 4, c.y + 4, 20, 20); }
+  }
+}
+
+function camDraw() {
+  const p = cam.p, { centerx, off, raw } = camOffset(), pics = p.pics;
+  // ---- the window ----
+  drawLevel(sc, off, pics);
+  drawPlayer(sc, p, p.x + off, p.y);
+  const hudX = opt("optHudOffset") ? 20 + off : 20;
+  sc.fillStyle = "#fff"; sc.font = "bold 30px system-ui, sans-serif"; sc.fillText("Coins: " + cam.collected, hudX, 44);
+  if (cam.msg) { sc.font = "bold 48px system-ui, sans-serif"; sc.fillText(cam.msg, 300, 100); }
+  if (opt("optBug")) {
+    const wallScreen = WIDTH + off;
+    if (wallScreen > 0 && wallScreen < WIDTH + 2) {
+      sc.save(); sc.strokeStyle = "#c62828"; sc.setLineDash([10, 8]); sc.lineWidth = 4;
+      sc.beginPath(); sc.moveTo(wallScreen, 0); sc.lineTo(wallScreen, HEIGHT); sc.stroke(); sc.restore();
+      sc.fillStyle = "#c62828"; sc.font = "bold 20px system-ui, sans-serif"; sc.fillText("invisible wall: world x = WIDTH", Math.max(8, wallScreen - 300), 580);
+    }
+  }
+  // ---- the world ----
+  drawLevel(wc, 0, pics);
+  drawPlayer(wc, p, p.x, p.y);
+  const camX = -off;
+  wc.fillStyle = "rgba(20,25,35,.38)";
+  wc.fillRect(0, 0, Math.max(0, camX), HEIGHT);
+  wc.fillRect(camX + WIDTH, 0, LEVEL_WIDTH, HEIGHT);
+  wc.strokeStyle = "#ffd479"; wc.lineWidth = 8; wc.strokeRect(camX + 4, 4, WIDTH - 8, HEIGHT - 8);
+  wc.fillStyle = "#ffd479"; wc.font = "bold 34px system-ui, sans-serif"; wc.fillText("the window (camera)", Math.max(12, camX + 16), 46);
+  wc.fillStyle = "#1d232b"; wc.font = "bold 26px system-ui, sans-serif";
+  for (let x = 0; x <= LEVEL_WIDTH; x += 400) { wc.fillRect(x - 2, HEIGHT - 26, 4, 26); wc.fillText(String(x), Math.min(x + 6, LEVEL_WIDTH - 70), HEIGHT - 32); }
+  if (opt("optBug")) { wc.save(); wc.strokeStyle = "#c62828"; wc.setLineDash([14, 10]); wc.lineWidth = 6; wc.beginPath(); wc.moveTo(WIDTH, 0); wc.lineTo(WIDTH, HEIGHT); wc.stroke(); wc.restore(); }
+
+  // ---- code + numbers ----
+  const r = n => Math.round(n);
+  const camOn = opt("optCamera"), ends = camOn && opt("optEnds");
+  const lines = [
+    ['<span class="c"># main loop</span>', false],
+    [`all_sprites.draw(player.rect.center)   <span class="c"># centerx = <span class="n">${r(centerx)}</span></span>`, true],
+    ['', false],
+    ['<span class="c"># inside AllSprites.draw(self, target_pos)</span>', false],
+    [camOn ? `self.offset.x = -(target_pos[0] - WIDTH / 2)` : `<span class="c"># camera off: offset stays 0</span>`, camOn],
+    [camOn ? `             = -(<span class="n">${r(centerx)}</span> - <span class="n">400</span>) = <span class="n">${r(raw)}</span>` : '', camOn],
+  ];
+  if (ends) lines.push([`self.offset.x = max(-800, min(offset.x, 0)) = <span class="n">${r(off)}</span>`, raw !== off]);
+  lines.push(['', false], ['for sprite in self:', false],
+    ['    blit(sprite.image, sprite.rect.topleft + self.offset)', true],
+    [`    <span class="c"># player: </span><span class="n">${r(p.x)}</span><span class="c"> + (</span><span class="n">${r(off)}</span><span class="c">) = </span><span class="n">${r(p.x + off)}</span><span class="c"> on screen</span>`, true],
+    ['', false],
+    [`screen.blit(score, (<span class="n">${opt("optHudOffset") ? "20 + offset.x" : "20"}</span>, 20))   <span class="c"># ${opt("optHudOffset") ? "wrong: the score slides away" : "screen position, no offset"}</span>`, opt("optHudOffset")]);
+  document.getElementById("camCode").innerHTML = lines.map(([t, hl]) => `<span class="ln${hl ? " hl" : ""}">${t || " "}</span>`).join("");
+
+  const rows = [["Player", p.x], ["Flag", FLAG.cx - 15]].concat(PLATFORMS.map((pl, i) => ["Platform " + (i + 1), pl[0]]));
+  document.getElementById("camTable").innerHTML = "<tr><th>Sprite</th><th>World x</th><th>+ offset</th><th>Screen x</th><th>In window?</th></tr>" +
+    rows.map(([name, wx]) => {
+      const sx = wx + off, w = name === "Player" ? p.w : name === "Flag" ? 30 : PLATFORMS[+name.slice(-1) - 1]?.[2] || 0;
+      const vis = sx + w > 0 && sx < WIDTH;
+      return `<tr><td>${name}</td><td>${r(wx)}</td><td>${r(off)}</td><td>${r(sx)}</td><td class="${vis ? "yes" : "no"}">${vis ? "yes" : "no"}</td></tr>`;
+    }).join("");
+
+  const co = document.getElementById("camCallout");
+  if (!camOn) { co.className = "callout bad"; co.innerHTML = "Camera off: the offset is always 0, so screen x = world x. Walk right and the player leaves the window."; }
+  else if (opt("optBug") && p.x + p.w >= WIDTH - 0.5) { co.className = "callout bad"; co.innerHTML = `Stuck at world x = <b>${r(p.x)}</b>. The side clamp uses <code>WIDTH</code> (800), a <b>screen</b> number, on a <b>world</b> position. Fix: <code>LEVEL_WIDTH</code>.`; }
+  else if (opt("optHudOffset") && off < -5) { co.className = "callout bad"; co.innerHTML = "The score is drawn with the offset, so it slides away with the world. Text belongs to the <b>screen</b>: no offset."; }
+  else if (ends && raw !== off) { co.className = "callout good"; co.innerHTML = `The camera has reached the ${raw > 0 ? "start" : "end"} of the level and stops. The player keeps walking ${raw > 0 ? "on the left side" : "to the right side"} of the window.`; }
+  else { co.className = "callout info"; co.innerHTML = "The player's <b>world x</b> keeps growing. The offset keeps shrinking. Their sum, the <b>screen x</b>, stays near the middle. The world never moves; only where we draw it changes."; }
+}
+
+// ======================= PICTURES TAB =======================
+const pb = document.getElementById("picBox").getContext("2d");
+const pi = document.getElementById("picImg").getContext("2d");
+function checker(ctx, x, y, w, h, s) {
+  for (let yy = 0; yy < h; yy += s) for (let xx = 0; xx < w; xx += s) {
+    ctx.fillStyle = ((xx + yy) / s) % 2 ? "#d7d7d7" : "#f2f2f2"; ctx.fillRect(x + xx, y + yy, Math.min(s, w - xx), Math.min(s, h - yy));
+  }
+}
+function picDraw() {
+  const S = 4, showRect = opt("optRect"), chk = opt("optChecker"), fillBug = opt("optFill");
+  for (const ctx of [pb, pi]) { ctx.fillStyle = "#87ceeb"; ctx.fillRect(0, 0, 320, 320); ctx.fillStyle = "#a0522d"; ctx.fillRect(0, 300, 320, 20); }
+  // box 40x60
+  const bx = 160 - 20 * S, by = 300 - 60 * S;
+  pb.fillStyle = "#1e90ff"; pb.fillRect(bx, by, 40 * S, 60 * S);
+  if (showRect) { pb.save(); pb.strokeStyle = "#c62828"; pb.setLineDash([8, 6]); pb.lineWidth = 3; pb.strokeRect(bx, by, 40 * S, 60 * S); pb.restore(); }
+  document.getElementById("picBoxInfo").innerHTML = "Surface size <b>40 × 60</b> → rect <b>40 × 60</b>";
+  // picture 64x64
+  const ix = 160 - 32 * S, iy = 300 - 64 * S;
+  if (chk) checker(pi, ix, iy, 64 * S, 64 * S, 2 * S);
+  pi.imageSmoothingEnabled = false;
+  if (fillBug) { pi.fillStyle = "#1e90ff"; pi.fillRect(ix, iy, 64 * S, 64 * S); }
+  else pi.drawImage(IMG.p0, ix, iy, 64 * S, 64 * S);
+  if (showRect) { pi.save(); pi.strokeStyle = "#c62828"; pi.setLineDash([8, 6]); pi.lineWidth = 3; pi.strokeRect(ix, iy, 64 * S, 64 * S); pi.restore(); }
+  document.getElementById("picImgInfo").innerHTML = fillBug
+    ? '<span style="color:var(--bad)"><b>fill("dodgerblue")</b> ran after loading: it painted over the whole picture.</span>'
+    : "Picture size <b>64 × 64</b> → rect <b>64 × 64</b>. The grey squares are see-through pixels: still inside the rect.";
+}
+["optRect", "optChecker", "optFill"].forEach(id => document.getElementById(id).onchange = picDraw);
+
+const TREES = {
+  good: { open: "week9", cwd: "/Users/you/Desktop/week9", tree: ["Desktop/", "└── <span class=\"open\">week9/</span>          ← VS Code opened this", "    ├── week9_starter.py", "    └── images/", "        ├── player/0.png", "        ├── flag.png", "        └── coin.png"] },
+  bad:  { open: "Desktop", cwd: "/Users/you/Desktop", tree: ["<span class=\"open\">Desktop/</span>              ← VS Code opened this", "└── week9/", "    ├── week9_starter.py", "    └── images/", "        ├── player/0.png", "        ├── flag.png", "        └── coin.png"] },
+};
+function setCwd(k) {
+  document.querySelectorAll("[data-cwd]").forEach(b => b.classList.toggle("on", b.dataset.cwd === k));
+  const t = TREES[k];
+  document.getElementById("tree").innerHTML = t.tree.join("\n");
+  const res = document.getElementById("pathResult");
+  if (k === "good") { res.className = "callout good"; res.innerHTML = `Python looks in <code>${t.cwd}</code> + <code>images/player/0.png</code> → <b>found.</b> The picture loads.`; }
+  else { res.className = "callout bad"; res.innerHTML = `Python looks in <code>${t.cwd}</code> + <code>images/player/0.png</code> → there is no <code>images</code> folder there.<br><code>FileNotFoundError: No file 'images/player/0.png' found in working directory '${t.cwd}'</code><br>Fix: <b>File → Open Folder → week9</b>, then run again.`; }
+}
+document.querySelectorAll("[data-cwd]").forEach(b => b.onclick = () => setCwd(b.dataset.cwd));
+
+function buildThumbs() {
+  const list = [["p0", "player/0.png"], ["p1", "player/1.png"], ["p2", "player/2.png"], ["flag", "flag.png"], ["coin", "coin.png"], ["worm0", "enemies/worm/0.png"], ["worm1", "enemies/worm/1.png"]];
+  document.getElementById("thumbs").innerHTML = list.map(([k, path]) => `<div class="thumb"><img src="${IMG_SRC[k]}" alt="${path}">${path}<br><span class="muted">${IMG[k].naturalWidth} × ${IMG[k].naturalHeight}</span></div>`).join("");
+}
+
+// ======================= ANIMATION TAB =======================
+const as = document.getElementById("animStage").getContext("2d");
+const ANIM_FLOOR = [[-10000, 170, 20000, 30]];
+let anim = { p: makePlayer(true), paused: false, step: false };
+placeMidbottom(anim.p, 200, 170);
+const animPauseBtn = document.getElementById("animPause");
+animPauseBtn.onclick = () => { anim.paused = !anim.paused; animPauseBtn.textContent = anim.paused ? "Play" : "Pause"; animPauseBtn.classList.toggle("on", anim.paused); };
+document.getElementById("animStep").onclick = () => { anim.paused = true; animPauseBtn.textContent = "Play"; animPauseBtn.classList.add("on"); anim.step = true; };
+const speedEl = document.getElementById("speed");
+speedEl.oninput = () => document.getElementById("speedVal").textContent = speedEl.value;
+
+function buildFilm() {
+  document.getElementById("film").innerHTML = [0, 1, 2].map(i => `<div class="frame" id="fr${i}"><img src="${IMG_SRC["p" + i]}" alt="frame ${i}">self.frames[${i}]</div>`).join("");
+  document.getElementById("modStrip").innerHTML = Array.from({ length: 12 }, (_, i) => `<div id="md${i}">${i}<small>→ ${i % 3}</small></div>`).join("");
+}
+
+function animUpdate(dt) {
+  const p = anim.p;
+  if (anim.paused && !anim.step) return;
+  anim.step = false;
+  const speed = +speedEl.value;
+  const held = keys.right;
+  if (opt("optAuto")) keys.right = true;
+  stepPlayer(p, dt, ANIM_FLOOR, 1e9, speed);
+  keys.right = held;
+  // wrap around the stage so the player never walks away
+  if (p.x > 400) p.x = -p.w; if (p.x < -p.w) p.x = 400;
+}
+
+function animDraw() {
+  const p = anim.p;
+  as.fillStyle = "#87ceeb"; as.fillRect(0, 0, 400, 200);
+  as.fillStyle = "#a0522d"; as.fillRect(0, 170, 400, 30);
+  as.imageSmoothingEnabled = false;
+  drawPlayer(as, p, p.x, p.y);
+  as.save(); as.strokeStyle = "rgba(198,40,40,.8)"; as.setLineDash([6, 5]); as.lineWidth = 2; as.strokeRect(p.x, p.y, p.w, p.h); as.restore();
+  as.fillStyle = "#1d232b"; as.font = "12px ui-monospace, Menlo, monospace";
+  as.fillText(`rect stays 64 × 64 · showing frames[${p.cur}]${p.flip ? " flipped" : ""}`, 8, 18);
+
+  [0, 1, 2].forEach(i => document.getElementById("fr" + i).classList.toggle("cur", i === p.cur));
+  const fi = p.frameIndex, iv = Math.floor(fi);
+  document.getElementById("fiVal").textContent = fi.toFixed(2);
+  document.getElementById("intVal").textContent = iv;
+  document.getElementById("modVal").textContent = iv % 3;
+  for (let i = 0; i < 12; i++) document.getElementById("md" + i).classList.toggle("cur", i === iv % 12);
+
+  const walk = p.branch?.includes("walk"), still = p.branch?.includes("still"), air = p.branch?.includes("air");
+  const sp = speedEl.value;
+  const L = [
+    ["def animate(self, dt):", false, false],
+    [`    if self.direction.x:              <span class="c"># direction.x = <span class="n">${p.dirx}</span></span>`, true, false],
+    [`        self.frame_index += ${sp} * dt   <span class="c"># → <span class="n">${walk ? fi.toFixed(2) : "skipped"}</span></span>`, walk, !walk],
+    [`        self.flip = self.direction.x &lt; 0 <span class="c"># → <span class="n">${p.flip ? "True" : "False"}</span></span>`, walk, !walk],
+    ["    else:", still, !still],
+    [`        self.frame_index = 0`, still, !still],
+    [`    if not self.on_floor:              <span class="c"># on_floor = <span class="n">${p.onFloor ? "True" : "False"}</span></span>`, true, false],
+    [`        self.frame_index = 1           <span class="c"># in the air</span>`, air, !air],
+    [`    self.image = self.frames[int(self.frame_index) % len(self.frames)]`, true, false],
+    [`    <span class="c">#            = frames[int(<span class="n">${fi.toFixed(2)}</span>) % 3] = frames[<span class="n">${p.cur}</span>]</span>`, true, false],
+    [`    self.image = pygame.transform.flip(self.image, self.flip, False)`, p.flip, !p.flip],
+  ];
+  document.getElementById("animCode").innerHTML = L.map(([t, hl, dim]) => `<span class="ln${hl ? " hl" : ""}${dim ? " dim" : ""}">${t}</span>`).join("");
+}
+
+// ======================= main loop =======================
+let last = 0;
+function frame(t) {
+  const realDt = Math.min(0.05, (t - (last || t)) / 1000); last = t;
+  if (tab === "camera") { camUpdate(realDt); camDraw(); }
+  else if (tab === "anim") { const slow = opt("optSlow") ? 0.1 : 1; animUpdate(anim.step ? 1 / 60 : realDt * slow); animDraw(); }
+  requestAnimationFrame(frame);
+}
+function start() {
+  [sc, wc, pb, pi, as].forEach(c => c.imageSmoothingEnabled = false);
+  camReset(); picDraw(); setCwd("good"); buildThumbs(); buildFilm(); animate(anim.p, 0, 10);
+  let saved = location.hash.slice(1) || null;
+  if (!saved && !EMBED) { try { saved = localStorage.getItem("w9vis-tab"); } catch (e) {} }
+  if (saved && document.getElementById("tab-" + saved)) showTab(saved);
+  if (EMBED && window.parent !== window) {
+    const main = document.querySelector("main");
+    const report = () => parent.postMessage({ type: "embed-height", height: Math.ceil(main.getBoundingClientRect().height) }, "*");
+    new ResizeObserver(report).observe(main);
+  }
+  requestAnimationFrame(frame);
+}
+</script>
+</body>
+</html>

@@ -9,13 +9,13 @@ const w9Quiz = {
     {
       q: 'Why add more than one platform to the level?',
       options: [
-        'So the player can jump across a small course',
+        'So the player can jump across a course',
         'So the game can save to a file',
-        'So a camera can follow the player',
+        'So the window can change size',
         'So Pygame can load a Tiled map',
       ],
       answerIndex: 0,
-      explanation: 'Extra platforms let the player jump across a small single-screen level. No camera and no Tiled map.',
+      explanation: 'Extra platforms give the player a course to jump across. They do not resize the window or load a map. The camera only changes where sprites are drawn.',
     },
     {
       q: 'What is the goal flag for?',
